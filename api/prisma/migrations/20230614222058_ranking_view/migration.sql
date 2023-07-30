@@ -1,0 +1,3 @@
+CREATE VIEW "Ranking" AS SELECT "Rank"."userUid" AS "userUid", CAST(ROW_NUMBER () OVER (ORDER BY points DESC, "Rank"."updatedAt" ASC) AS INT) AS rank, username, points, "Rank"."updatedAt" FROM "Rank" JOIN "User" ON "Rank"."userUid" = "User"."uid";
+
+CREATE VIEW "PastRanking" AS SELECT "PastRank"."userUid" AS "userUid", CAST(ROW_NUMBER () OVER (ORDER BY points DESC, "PastRank"."updatedAt" ASC) AS INT) AS rank, username, points, "PastRank"."updatedAt" FROM "PastRank" JOIN "User" ON "PastRank"."userUid" = "User"."uid";

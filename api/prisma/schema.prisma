@@ -1,0 +1,165 @@
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["interactiveTransactions", "views"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    uid       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    username  String    @unique
+    email     String    @unique
+    hash      String
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @default(now()) @updatedAt
+    planets   Planet[]
+    rank      Rank?
+    pastRank  PastRank?
+}
+
+model UserSession {
+    sid    String   @id @db.VarChar
+    sess   Json     @db.Json
+    expire DateTime @db.Timestamp(6)
+
+    @@index([expire], map: "IDX_session_expire")
+}
+
+model Planet {
+    uid                String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    variant            Int
+    name               String
+    createdAt          DateTime     @default(now())
+    lastActivity       DateTime     @default(now()) @db.Timestamp(0)
+    lastResourceUpdate DateTime     @default(now()) @db.Timestamp(0)
+    updatedAt          DateTime     @default(now()) @updatedAt
+    resources          Resource[]
+    buildings          Building[]
+    fleet              Fleet[]
+    user               User         @relation(fields: [userUid], references: [uid])
+    userUid            String       @db.Uuid
+    coordinates        Coordinates?
+    sourceMissions     Mission[]    @relation(name: "source")
+    targetMissions     Mission[]    @relation(name: "target")
+}
+
+model Resource {
+    uid       String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    value     Int
+    planetUid String       @db.Uuid
+    createdAt DateTime     @default(now())
+    updatedAt DateTime     @default(now()) @updatedAt
+    type      ResourceType
+    planet    Planet       @relation(fields: [planetUid], references: [uid])
+}
+
+model Fleet {
+    uid        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    planetUid  String    @db.Uuid
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @default(now()) @updatedAt
+    rarity     Rarity    @default(COMMON)
+    type       FleetType
+    level      Int       @default(1)
+    planet     Planet    @relation(fields: [planetUid], references: [uid])
+    mission    Mission?  @relation(fields: [missionUid], references: [uid])
+    missionUid String?   @db.Uuid
+}
+
+model Building {
+    uid        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    level      Int          @default(1)
+    production Int
+    planetUid  String       @db.Uuid
+    createdAt  DateTime     @default(now())
+    updatedAt  DateTime     @default(now()) @updatedAt
+    type       BuildingType
+    planet     Planet       @relation(fields: [planetUid], references: [uid])
+}
+
+model Rank {
+    uid       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    points    Int      @default(0)
+    userUid   String   @unique @db.Uuid
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    user      User     @relation(fields: [userUid], references: [uid])
+}
+
+model PastRank {
+    uid       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    points    Int      @default(0)
+    userUid   String   @unique @db.Uuid
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    user      User     @relation(fields: [userUid], references: [uid])
+}
+
+model Coordinates {
+    uid            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    x              Int
+    y              Int
+    z              Int
+    xOffset        Int
+    yOffset        Int
+    spiralProgress Int
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @default(now()) @updatedAt
+    planet         Planet   @relation(fields: [planetUid], references: [uid])
+    planetUid      String   @unique @db.Uuid
+}
+
+model Mission {
+    uid         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    label       String?
+    source      Planet   @relation(name: "source", fields: [sourceUid], references: [uid])
+    sourceUid   String   @db.Uuid
+    target      Planet   @relation(name: "target", fields: [targetUid], references: [uid])
+    targetUid   String   @db.Uuid
+    fleet       Fleet[]
+    arrivalTime DateTime @db.Timestamp(0)
+    returnTime  DateTime @db.Timestamp(0)
+    cancelled   Boolean  @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @default(now()) @updatedAt
+}
+
+view Ranking {
+    userUid   String   @unique @db.Uuid
+    rank      Int
+    username  String
+    points    Int
+    updatedAt DateTime @updatedAt
+}
+
+view PastRanking {
+    userUid   String   @unique @db.Uuid
+    rank      Int
+    username  String
+    points    Int
+    updatedAt DateTime @updatedAt
+}
+
+enum ResourceType {
+    CRYSTAL
+}
+
+enum Rarity {
+    COMMON
+    UNCOMMON
+    RARE
+    EPIC
+    LEGENDARY
+}
+
+enum FleetType {
+    LIGHT_FIGHTER
+}
+
+enum BuildingType {
+    CRYSTAL_MINE
+    SPACE_DOCK
+}
