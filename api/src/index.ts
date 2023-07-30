@@ -42,10 +42,7 @@ app.use(session({
     store: new PgSession({
         conObject: {
             connectionString: process.env.DATABASE_URL!,
-            ssl: process.env.NODE_ENV === "production" ? {
-                // Heroku is using self signed certificates which are not accepted
-                rejectUnauthorized: false
-            } : false,
+            ssl: process.env.NODE_ENV === "production" ? true : false,
         },
         tableName: "UserSession",
         createTableIfMissing: true
