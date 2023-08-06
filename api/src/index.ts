@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express, { Request, Response, Router } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { checkEnvironmentVariables } from "./utils/checkEnvironmentVariables";
@@ -67,6 +67,12 @@ router.use(galaxyRouter);
 router.use(missionRouter);
 
 app.use("/api", router);
+
+app.get("/", (req: Request, res: Response) => {
+    res.json({
+        data: "Hello world!"
+    });
+});
 
 app.use(errorMiddleware);
 app.use(globalErrorHandler);

@@ -11,11 +11,9 @@ RUN npm install -g pnpm@8.X
 RUN npm install -g pm2
 WORKDIR /app
 COPY package.json ./
-ENV NODE_ENV production
-RUN pnpm install
+RUN pnpm install --prod
 COPY --from=0 /app/dist .
 COPY --from=0 /app/prisma .
 RUN npx prisma generate
 EXPOSE 8000
-EXPOSE 5432
 CMD ["pm2-runtime","src/index.js"]
