@@ -13,7 +13,7 @@ WORKDIR /app
 COPY package.json ./
 RUN pnpm install --prod
 COPY --from=0 /app/dist .
-COPY --from=0 /app/prisma .
+COPY --from=0 /app/prisma prisma
 RUN npx prisma generate
 EXPOSE 8000
-CMD ["pm2-runtime","src/index.js"]
+CMD npx prisma migrate deploy && pnpm db:seed:prod && pm2-runtime "src/index.js"

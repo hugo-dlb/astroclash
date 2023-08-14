@@ -1,26 +1,14 @@
-variable "container_env_variables"{
-  default = [
-        {
-          "name": "DATABASE_URL",
-          "value": "postgresql://postgres:postgres@host.docker.internal:5432/astroclash?schema=public"
-        },
-        {
-          "name": "CORS_ALLOWED_ORIGINS",
-          "value": "http://astroclash.io"
-        },
-        {
-          "name": "PORT",
-          "value": "8000"
-        },
-        {
-          "name": "SESSION_SECRET",
-          "value": "secret"
-        },
-        {
-          "name": "NODE_ENV",
-          "value": "development"
-        }
-      ]
+resource "aws_cloudwatch_log_group" "main" {
+    name              = "/astroclash/api"
+    retention_in_days = 7
+    lifecycle {
+        prevent_destroy = false
+    }
+}
+
+
+locals {
+    connection_string = "postgresql://postgres:${aws_secretsmanager_secret_version.rds_password.secret_string}@${aws_db_instance.postgres.endpoint}/astroclash"
 }
 
 resource "aws_ecs_task_definition" "backend_task" {
@@ -50,7 +38,36 @@ resource "aws_ecs_task_definition" "backend_task" {
                     "hostPort": 8000
                 }
             ],
-            "environment": ${jsonencode(var.container_env_variables)}
+            "environment": ${jsonencode([
+                {
+                "name": "DATABASE_URL",
+                "value": local.connection_string
+                },
+                {
+                "name": "CORS_ALLOWED_ORIGINS",
+                "value": "https://astroclash.io"
+                },
+                {
+                "name": "PORT",
+                "value": "8000"
+                },
+                {
+                "name": "SESSION_SECRET",
+                "value": "secret"
+                },
+                {
+                "name": "NODE_ENV",
+                "value": "development"
+                }
+            ])},
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-region": "${var.aws_region}",
+                    "awslogs-stream-prefix": "astroclash",
+                    "awslogs-group": "${aws_cloudwatch_log_group.main.name}"
+                }
+            }
         }
     ]
     EOT
@@ -60,8 +77,8 @@ resource "aws_ecs_cluster" "backend_cluster" {
     name = "backend_cluster_app"
 }
 
-resource "aws_security_group" "security_group_app" {
-    name = "security_group_app"
+resource "aws_security_group" "app_sg" {
+    name = "app_sg"
     description = "Allow TLS inbound traffic on port 80 (http)"
     vpc_id = "${aws_vpc.vpc_app.id}"
 
@@ -91,12 +108,11 @@ resource "aws_ecs_service" "backend_service" {
 
     network_configuration {
         subnets = ["${aws_subnet.private_a.id}", "${aws_subnet.private_b.id}"]
-        security_groups = ["${aws_security_group.security_group_app.id}"]
+        security_groups = ["${aws_security_group.app_sg.id}"]
     }
 
     load_balancer {
-        # doesn't look like the right way to do it
-        target_group_arn = "app_tg"
+        target_group_arn = "${aws_alb_target_group.main.id}"
         container_name   = "app_container"
         container_port   = 8000
     }

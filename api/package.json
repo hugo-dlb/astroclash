@@ -7,13 +7,19 @@
         "preinstall": "npx only-allow pnpm",
         "start": "ts-node src/index.ts",
         "migrate:dev": "prisma migrate dev",
+        "db:seed:prod": "node prisma/seed.js",
+        "aws:update": "aws ecs --region eu-west-1 update-service --cluster backend_cluster_app --service backend_service --force-new-deployment",
+        "docker:login": "aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 050908749326.dkr.ecr.eu-west-1.amazonaws.com",
+        "docker:build": "docker build -t astroclash-api .",
+        "docker:tag": "docker tag astroclash-api:latest 050908749326.dkr.ecr.eu-west-1.amazonaws.com/ecr_repo:latest",
+        "docker:push": "docker push 050908749326.dkr.ecr.eu-west-1.amazonaws.com/ecr_repo:latest",
+        "docker:release": "pnpm docker:login && pnpm docker:build && pnpm docker:tag && pnpm docker:push && pnpm aws:update",
         "build": "tsc"
     },
     "keywords": [],
     "author": "Hugo Dalboussière",
     "license": "UNLICENSED",
     "devDependencies": {
-        "@faker-js/faker": "^8.0.2",
         "@types/bcrypt": "^5.0.0",
         "@types/body-parser": "^1.19.2",
         "@types/connect-pg-simple": "^7.0.0",
@@ -42,10 +48,11 @@
         "prisma": "^4.16.2",
         "ts-node": "^10.9.1",
         "yup": "^0.32.11",
-        "yup-password": "^0.2.2"
+        "yup-password": "^0.2.2",
+        "@faker-js/faker": "^8.0.2"
     },
     "prisma": {
-        "seed": "ts-node prisma/seed.ts"
+        "seed": "ts-node --transpile-only prisma/seed.ts"
     },
     "private": true
 }

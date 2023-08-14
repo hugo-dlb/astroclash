@@ -1,4 +1,4 @@
-import express, { Request, Response, Router } from "express";
+import express, { Router } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { checkEnvironmentVariables } from "./utils/checkEnvironmentVariables";
@@ -15,6 +15,7 @@ import { CronJob } from "cron";
 import { updateRanking } from "./utils/rank";
 import { galaxyRouter } from "./services/galaxy";
 import { missionRouter } from "./services/mission";
+import { healthRouter } from "./services/health";
 
 checkEnvironmentVariables();
 
@@ -31,7 +32,7 @@ new CronJob(
     true,
 );
 
-app.set('trust proxy', 1);
+// app.set('trust proxy', 1);
 app.use(cors({
     origin: process.env.CORS_ALLOWED_ORIGINS!.split(","),
     credentials: true
@@ -42,10 +43,10 @@ app.use(session({
     store: new PgSession({
         conObject: {
             connectionString: process.env.DATABASE_URL!,
-            ssl: process.env.NODE_ENV === "production" ? true : false,
+            ssl: false
         },
         tableName: "UserSession",
-        createTableIfMissing: true
+        createTableIfMissing: true,
     }),
     secret: process.env.SESSION_SECRET!,
     resave: false,
@@ -58,6 +59,7 @@ app.use(session({
     saveUninitialized: false,
 }));
 
+router.use(healthRouter);
 router.use(authRouter);
 router.use(buildingRouter);
 router.use(fleetRouter);
@@ -68,15 +70,9 @@ router.use(missionRouter);
 
 app.use("/api", router);
 
-app.get("/", (req: Request, res: Response) => {
-    res.json({
-        data: "Hello world!"
-    });
-});
-
 app.use(errorMiddleware);
 app.use(globalErrorHandler);
 
 app.listen(port, () => {
-    console.log(`Astroclash api app listening on port ${port}`);
+    console.log(`Astroclash api listening on port ${port} (Environment: ${process.env.NODE_ENV}).`);
 });

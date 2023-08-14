@@ -7,6 +7,13 @@ import { faker } from '@faker-js/faker';
 const prisma = new PrismaClient();
 
 const main = async () => {
+    const seedingNeeded = await prisma.user.count() === 0;
+
+    if (!seedingNeeded) {
+        console.info("skipping seeding step: database is not empty");
+        return;
+    }
+
     await prisma.user.create({
         data: {
             username: "Hugo",

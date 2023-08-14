@@ -2,20 +2,24 @@ resource "aws_lb" "main" {
     name               = "alb"
     internal           = false
     load_balancer_type = "application"
-    security_groups    = ["${aws_security_group.security_group_alb.id}"]
-    subnets            = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
+    security_groups    = [aws_security_group.alb_sg.id]
+    subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
 }
  
 resource "aws_alb_target_group" "main" {
     name        = "main"
     port        = 80
     protocol    = "HTTP"
-    vpc_id      = "${aws_vpc.vpc_app.id}"
+    vpc_id      = aws_vpc.vpc_app.id
     target_type = "ip"
+
+    health_check {
+        path                = "/api/health"
+    }
 }
 
 resource "aws_alb_listener" "http" {
-    load_balancer_arn = "${aws_lb.main.id}"
+    load_balancer_arn = aws_lb.main.id
     port              = 80
     protocol          = "HTTP"
 
@@ -31,22 +35,22 @@ resource "aws_alb_listener" "http" {
 }
     
 resource "aws_alb_listener" "https" {
-    load_balancer_arn = "${aws_lb.main.id}"
-    port              = 80
-    protocol          = "HTTP"
+    load_balancer_arn = aws_lb.main.id
+    port              = 443
+    protocol          = "HTTPS"
     
-    # ssl_policy        = "ELBSecurityPolicy-2016-08"
-    # certificate_arn   = var.alb_tls_cert_arn
+    ssl_policy        = "ELBSecurityPolicy-2016-08"
+    certificate_arn   = aws_acm_certificate_validation.production_api.certificate_arn
     
     default_action {
-        target_group_arn = "${aws_alb_target_group.main.id}"
+        target_group_arn = aws_alb_target_group.main.id
         type             = "forward"
     }
 }
 
-resource "aws_security_group" "security_group_alb" {
-    name   = "security_group_alb"
-    vpc_id = "${aws_vpc.vpc_app.id}"
+resource "aws_security_group" "alb_sg" {
+    name   = "alb_sg"
+    vpc_id = aws_vpc.vpc_app.id
     
     ingress {
         protocol         = "tcp"

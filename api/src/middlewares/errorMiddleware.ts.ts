@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-export const globalErrorHandler = (err: Error, req: Request, res: Response) => {
+export const globalErrorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ error: 'A technical error occured. Please try again later' });
 };
 
