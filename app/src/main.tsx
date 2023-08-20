@@ -1,12 +1,12 @@
-import ReactDOM from "react-dom/client";
-import "./index.css";
+import { createRoot } from "react-dom/client";
 import { ChakraProvider } from "@chakra-ui/react";
-import { theme } from "./theme.ts";
+import { theme } from "./theme";
 import { RouterProvider } from "react-router-dom";
-import { router } from "./router.tsx";
-import { ToastContainer } from "./utils/toast.ts";
+import { router } from "./router";
+import { ToastContainer } from "./utils/toast";
+import "./index.css";
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+createRoot(document.getElementById("root") as HTMLElement).render(
     <ChakraProvider theme={theme}>
         <RouterProvider router={router} />
         <ToastContainer />

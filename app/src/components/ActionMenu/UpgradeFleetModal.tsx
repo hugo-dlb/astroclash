@@ -15,15 +15,10 @@ import {
     Th,
     Thead,
     Tr,
-    Badge,
 } from "@chakra-ui/react";
 import { Fleet, Planet } from "../../types/types";
 import { getEntityLabel } from "../../utils/entity";
-import {
-    getRarityBackgroundHoverColor,
-    getRarityLabel,
-    getRarityMultiplier,
-} from "../../utils/rarity";
+import { getRarityMultiplier } from "../../utils/rarity";
 import { Actionable } from "./Actionable";
 import { useStore } from "../../store/store";
 import { useState } from "react";

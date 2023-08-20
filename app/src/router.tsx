@@ -1,13 +1,13 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
-import { Login } from "./pages/Login.tsx";
-import { Register } from "./pages/Register.tsx";
-import { Planets } from "./pages/Planets.tsx";
-import { Planet } from "./pages/Planet.tsx";
-import { PlanetLayout } from "./pages/PlanetLayout.tsx";
-import { Ranking } from "./pages/Ranking.tsx";
-import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
-import { Galaxy } from "./pages/Galaxy/Galaxy.tsx";
-import { Attack } from "./pages/Attack/Attack.tsx";
+import { Login } from "./pages/Login";
+import { Register } from "./pages/Register";
+import { Planets } from "./pages/Planets";
+import { Planet } from "./pages/Planet";
+import { PlanetLayout } from "./pages/PlanetLayout";
+import { Ranking } from "./pages/Ranking";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Galaxy } from "./pages/Galaxy/Galaxy";
+import { Attack } from "./pages/Attack/Attack";
 
 export const router = createBrowserRouter([
     {

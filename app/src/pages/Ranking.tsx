@@ -18,7 +18,7 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import { MenuBar } from "../components/MenuBar/MenuBar";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { RankDifference } from "../components/RankDifference";
 import { Pagination } from "../components/Pagination/Pagination";
 
