@@ -45,7 +45,7 @@ resource "aws_ecs_task_definition" "backend_task" {
                 },
                 {
                 "name": "CORS_ALLOWED_ORIGINS",
-                "value": "https://astroclash.io"
+                "value": "https://www.astroclash.io"
                 },
                 {
                 "name": "PORT",
@@ -57,7 +57,7 @@ resource "aws_ecs_task_definition" "backend_task" {
                 },
                 {
                 "name": "NODE_ENV",
-                "value": "development"
+                "value": "production"
                 }
             ])},
             "logConfiguration": {

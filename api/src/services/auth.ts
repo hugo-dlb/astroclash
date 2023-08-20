@@ -238,8 +238,8 @@ router.post('/auth/logout', authMiddleware, async (req: Request, res: Response) 
     res.cookie("connect.sid", null, {
         expires: new Date('Thu, 01 Jan 1970 00:00:00 UTC'),
         secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === "production" ? "astroclash.io" : "localhost",
-        sameSite: "lax",
+        domain: process.env.NODE_ENV === "production" ? "www.astroclash.io" : "localhost",
+        sameSite: true,
         httpOnly: true
     });
 
