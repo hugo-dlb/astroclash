@@ -32,7 +32,7 @@ new CronJob(
     true,
 );
 
-// app.set('trust proxy', 1);
+app.set('trust proxy', 1);
 app.use(cors({
     origin: process.env.CORS_ALLOWED_ORIGINS!.split(","),
     credentials: true
@@ -53,7 +53,7 @@ app.use(session({
     cookie: {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === "production" ? "www.astroclash.io" : "localhost",
+        domain: process.env.NODE_ENV === "production" ? "astroclash.io" : "localhost",
         httpOnly: true,
         sameSite: true
     },

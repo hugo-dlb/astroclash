@@ -2,42 +2,78 @@ import { Request, Response, Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { InferType, object, string, array } from "yup";
 import { bodyValidationMiddleware } from "../utils/dataValidation";
-import { getMissionDuration, getUserMissions } from "../utils/mission";
+import { executeMission, getMissionDuration, getUserMissions } from "../utils/mission";
 import { Coordinates, Planet } from "@prisma/client";
 import { addSeconds, differenceInSeconds, isBefore } from "date-fns";
 import { prisma } from "../middlewares/prismaMiddleware";
+import { addResourcesToPlanet } from "../utils/resource";
 
 const router = Router();
 
 router.get('/missions', authMiddleware, async (req: Request, res: Response) => {
     const { user } = req;
 
-    const missions = await getUserMissions(user.userUid);
+    const missions = await getUserMissions(user.userUid, true);
     const missionsToBeDeleted = [];
 
     for (const mission of missions) {
         const isIncoming = mission.target.userUid === user.userUid;
         const hasReachedDestination = isBefore(new Date(mission.arrivalTime), new Date());
-        const hasReturned = isBefore(new Date(mission.returnTime!), new Date());
+        const hasReturned = !isIncoming && isBefore(new Date(mission.returnTime!), new Date());
 
         if (isIncoming) {
+            console.log('isIncoming');
             if (!hasReachedDestination) {
                 continue;
             }
 
-            // handle attack and update planet (both source and origin), mission accordingly
-            // call executeMission
-            continue;
-        }
+            const defenderFleet = await prisma.fleet.findMany({
+                where: {
+                    planetUid: mission.targetUid
+                }
+            });
 
-        if (hasReturned) {
-            missionsToBeDeleted.push(mission);
+            await executeMission(mission.uid, mission.source.userUid, mission.target.userUid, mission.fleet, defenderFleet);
             continue;
         }
 
         if (hasReachedDestination) {
-            // handle attack and update planet (both source and origin), mission accordingly
-            // call executeMission
+            console.log('hasReachedDestination');
+            const defenderFleet = await prisma.fleet.findMany({
+                where: {
+                    planetUid: mission.targetUid
+                }
+            });
+
+            const missionDeleted = await executeMission(mission.uid, mission.source.userUid, mission.target.userUid, mission.fleet, defenderFleet);
+
+            if (hasReturned && !missionDeleted) {
+                console.log('hasReturned');
+
+            }
+
+            const updatedMission = await prisma.mission.findFirstOrThrow({
+                where: {
+                    uid: mission.uid
+                },
+                include: {
+                    resources: true
+                }
+            });
+            if (updatedMission.resources.length > 0) {
+                addResourcesToPlanet(mission.sourceUid, updatedMission.resources[0].value);
+            }
+            missionsToBeDeleted.push(mission);
+            continue;
+        }
+
+        if (hasReturned) {
+            console.log('hasReturned');
+            if (mission.resources.length > 0) {
+                addResourcesToPlanet(mission.sourceUid, mission.resources[0].value);
+            }
+            missionsToBeDeleted.push(mission);
+            continue;
         }
     }
 
@@ -104,9 +140,12 @@ router.post('/missions', authMiddleware, bodyValidationMiddleware(createMissionV
 
     const duration = getMissionDuration(sourcePlanet.coordinates, targetPlanet.coordinates, fleet) * 1000;
 
+    console.log(fleetUids.map(uid => ({ uid })));
+
     await prisma.mission.create({
         data: {
             label,
+            type: "ATTACK",
             sourceUid: sourcePlanet.uid,
             targetUid: targetPlanet.uid,
             fleet: {
@@ -157,12 +196,12 @@ router.delete('/missions/:missionUid', authMiddleware, async (req: Request<{ mis
             source: {
                 include: {
                     coordinates: true
-                } 
+                }
             },
             target: {
                 include: {
                     coordinates: true
-                } 
+                }
             },
             fleet: true
         }
@@ -180,7 +219,7 @@ router.delete('/missions/:missionUid', authMiddleware, async (req: Request<{ mis
         data: {
             returnTime: addSeconds(new Date(), timeElapsed),
             cancelled: true
-        }   
+        }
     });
 
     return res.json({

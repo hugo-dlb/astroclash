@@ -12,30 +12,49 @@ const extendFleet = (fleet: Fleet[]) => {
 };
 
 export const executeBattle = (defender: Fleet[], attacker: Fleet[]) => {
-    const defenderRemainingFleet = extendFleet(defender);
-    const attackerRemainingFleet = extendFleet(attacker);
+    let defenderRemainingFleet = extendFleet(defender);
+    let attackerRemainingFleet = extendFleet(attacker);
     const defenderLostFleet = [];
     const attackerLostFleet = [];
 
-    let ROUNDS_LEFT = BATTLE_ROUNDS;
+    let ROUNDS_LEFT = defender.length === 0 ? 0 : BATTLE_ROUNDS;
     while (ROUNDS_LEFT > 0) {
+        const roundAttackerRemainingFleet = [...attackerRemainingFleet];
+        const roundDefenderRemainingFleet = [...defenderRemainingFleet];
 
         for (const fleet of attackerRemainingFleet) {
-            const target = defenderRemainingFleet[Math.floor(Math.random() * defenderRemainingFleet.length)];
+            const target = roundDefenderRemainingFleet[Math.floor(Math.random() * roundDefenderRemainingFleet.length)];
             target.healthPoints -= fleet.attackPoints;
+
             if (target.healthPoints <= 0) {
                 defenderLostFleet.push(target);
-                defenderRemainingFleet.splice(defenderRemainingFleet.indexOf(target), 1);
+                roundDefenderRemainingFleet.splice(roundDefenderRemainingFleet.indexOf(target), 1);
+            }
+
+            if (roundDefenderRemainingFleet.length === 0) {
+                break;
             }
         }
 
         for (const fleet of defenderRemainingFleet) {
-            const target = attackerRemainingFleet[Math.floor(Math.random() * attackerRemainingFleet.length)];
+            const target = roundAttackerRemainingFleet[Math.floor(Math.random() * roundAttackerRemainingFleet.length)];
             target.healthPoints -= fleet.attackPoints;
+
             if (target.healthPoints <= 0) {
                 attackerLostFleet.push(target);
-                attackerRemainingFleet.splice(attackerRemainingFleet.indexOf(target), 1);
+                roundAttackerRemainingFleet.splice(roundAttackerRemainingFleet.indexOf(target), 1);
             }
+
+            if (roundAttackerRemainingFleet.length === 0) {
+                break;
+            }
+        }
+
+        attackerRemainingFleet = [...roundAttackerRemainingFleet];
+        defenderRemainingFleet = [...roundDefenderRemainingFleet];
+
+        if (roundAttackerRemainingFleet.length === 0 || roundDefenderRemainingFleet.length === 0) {
+            break;
         }
 
         ROUNDS_LEFT--;

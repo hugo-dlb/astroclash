@@ -1,8 +1,10 @@
-import { Coordinates, Fleet, Planet } from "@prisma/client";
-import { getFleetLootNumber, getSlowestFleetSpeed } from "./fleet";
+import { Coordinates, Fleet, Planet, Resource } from "@prisma/client";
+import { getFleetLootNumber, getFleetValue, getSlowestFleetSpeed } from "./fleet";
 import { prisma } from "../middlewares/prismaMiddleware";
 import { Mission } from "../types/Mission";
 import { executeBattle } from "./battle";
+import { getPlanetResource } from "./planet";
+import { addResourcesToPlanet, removeResourcesFromPlanet, updatePlanetResources } from "./resource";
 
 const MINIMUM_TRAVEL_TIME = 10 * 60;
 const BASE_SPEED = 50;
@@ -22,8 +24,16 @@ export const getMissionDuration = (sourceCoordinates: Coordinates, targetCoordin
     return MINIMUM_TRAVEL_TIME + Math.ceil((distance * 30) / speedRatio);
 };
 
-export const getUserMissions = async (userUid: string) => {
-    const missions: Mission[] = await prisma.mission.findMany({
+type MissionWithOptionalReturnTime = Mission & {
+    resources: Resource[];
+    fleet: Fleet[];
+    source: Planet;
+    target: Planet;
+    returnTime?: Date;
+}
+
+export const getUserMissions = async (userUid: string, isInternal = false) => {
+    const missions: MissionWithOptionalReturnTime[] = await prisma.mission.findMany({
         where: {
             OR: [{
                 source: {
@@ -36,6 +46,7 @@ export const getUserMissions = async (userUid: string) => {
             }]
         },
         include: {
+            resources: true,
             fleet: true,
             source: {
                 include: {
@@ -53,7 +64,7 @@ export const getUserMissions = async (userUid: string) => {
     const now = new Date();
 
     // hide the incoming attacks after they reached their target
-    const filteredMissions = missions.filter(mission => {
+    const filteredMissions = isInternal ? missions : missions.filter(mission => {
         return (mission.target.userUid !== userUid) || (mission.arrivalTime >= now);
     });
 
@@ -67,13 +78,101 @@ export const getUserMissions = async (userUid: string) => {
     return filteredMissions;
 };
 
-const executeMission = (source: Planet, target: Planet, attackerFleet: Fleet[], defenderFleet: Fleet[]) => {
+const deleteMission = async (mission: { uid: string } & {
+    resources: { uid: string }[]
+}) => {
+    if (mission.resources.length > 1) {
+        await prisma.resource.delete({
+            where: {
+                uid: mission.resources[0].uid
+            }
+        });
+    }
+
+    await prisma.mission.delete({
+        where: {
+            uid: mission.uid
+        }
+    });
+};
+
+const updateMissionResources = async (missionUid: string, resources: number) => {
+    await prisma.mission.update({
+        where: {
+            uid: missionUid
+        },
+        data: {
+            resources: {
+                create: {
+                    type: "CRYSTAL",
+                    value: resources,
+                }
+            }
+        }
+    });
+};
+
+const updateRankingAfterBattle = async (attackerUserUid: string, attackerLostFleet: Fleet[], defenderUserUid: string, defenderLostFleet: Fleet[]) => {
+    if (attackerLostFleet.length > 1) {
+        await prisma.rank.update({
+            where: {
+                userUid: attackerUserUid
+            },
+            data: {
+                points: {
+                    decrement: getFleetValue(attackerLostFleet)
+                }
+            }
+        });
+    }
+
+    if (defenderLostFleet.length > 1) {
+        await prisma.rank.update({
+            where: {
+                userUid: defenderUserUid
+            },
+            data: {
+                points: {
+                    decrement: getFleetValue(defenderLostFleet)
+                }
+            }
+        });
+    }
+};
+
+export const executeMission = async (missionUid: string, attackerUserUid: string, defenderUserUid: string, attackerFleet: Fleet[], defenderFleet: Fleet[]) => {
     const {
         defenderRemainingFleet,
         attackerRemainingFleet,
         defenderLostFleet,
         attackerLostFleet
     } = executeBattle(defenderFleet, attackerFleet);
+    let missionDeleted = false;
+
+    console.log({
+        defenderRemainingFleet,
+        attackerRemainingFleet,
+        defenderLostFleet,
+        attackerLostFleet
+    });
+
+    const mission = await prisma.mission.findFirstOrThrow({
+        where: {
+            uid: missionUid
+        },
+        include: {
+            resources: true
+        }
+    });
+
+    // destroy lost fleet from both sides
+    await prisma.fleet.deleteMany({
+        where: {
+            uid: {
+                in: [...defenderLostFleet.map(fleet => fleet.uid), ...attackerLostFleet.map(fleet => fleet.uid)]
+            }
+        }
+    });
 
     let resourcesLoot = 0;
     for (const fleet of defenderLostFleet) {
@@ -83,5 +182,38 @@ const executeMission = (source: Planet, target: Planet, attackerFleet: Fleet[], 
         resourcesLoot += getFleetLootNumber(fleet);
     }
 
-    // TODO: distribute loot to winner (or both somehow if the outcome of the battle is a draw)
+    const attackerWon = defenderRemainingFleet.length === 0 && attackerRemainingFleet.length > 0;
+    const defenderWon = attackerRemainingFleet.length === 0 && defenderRemainingFleet.length > 0;
+
+    console.log(attackerWon);
+    console.log(defenderWon);
+
+    if (attackerWon) {
+        const targetPlanet = await prisma.planet.findFirstOrThrow({
+            where: {
+                uid: mission.targetUid
+            },
+            include: {
+                resources: true,
+                buildings: true
+            }
+        });
+        const updatedPlanetResources = await updatePlanetResources(targetPlanet);
+        resourcesLoot += updatedPlanetResources;
+        console.log(updatedPlanetResources);
+        await updateMissionResources(mission.uid, resourcesLoot);
+        await removeResourcesFromPlanet(mission.targetUid, updatedPlanetResources);
+    } else if (defenderWon) {
+        await addResourcesToPlanet(mission.targetUid, resourcesLoot);
+        await deleteMission(mission);
+        missionDeleted = true;
+    } else {
+        // draw
+        await updateMissionResources(mission.uid, Math.round(resourcesLoot / 2));
+        await addResourcesToPlanet(mission.targetUid, Math.round(resourcesLoot / 2));
+    }
+
+    await updateRankingAfterBattle(attackerUserUid, attackerLostFleet, defenderUserUid, defenderLostFleet);
+
+    return missionDeleted;
 };

@@ -47,13 +47,15 @@ model Planet {
 }
 
 model Resource {
-    uid       String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    value     Int
-    planetUid String       @db.Uuid
-    createdAt DateTime     @default(now())
-    updatedAt DateTime     @default(now()) @updatedAt
-    type      ResourceType
-    planet    Planet       @relation(fields: [planetUid], references: [uid])
+    uid        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    value      Int
+    createdAt  DateTime     @default(now())
+    updatedAt  DateTime     @default(now()) @updatedAt
+    type       ResourceType
+    planet     Planet?      @relation(fields: [planetUid], references: [uid])
+    planetUid  String?      @db.Uuid
+    mission    Mission?     @relation(fields: [missionUid], references: [uid])
+    missionUid String?      @db.Uuid
 }
 
 model Fleet {
@@ -112,19 +114,26 @@ model Coordinates {
     planetUid      String   @unique @db.Uuid
 }
 
+enum MissionType {
+    ATTACK
+    TRANSPORT
+}
+
 model Mission {
-    uid         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    uid         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    type        MissionType
     label       String?
-    source      Planet   @relation(name: "source", fields: [sourceUid], references: [uid])
-    sourceUid   String   @db.Uuid
-    target      Planet   @relation(name: "target", fields: [targetUid], references: [uid])
-    targetUid   String   @db.Uuid
+    source      Planet      @relation(name: "source", fields: [sourceUid], references: [uid])
+    sourceUid   String      @db.Uuid
+    target      Planet      @relation(name: "target", fields: [targetUid], references: [uid])
+    targetUid   String      @db.Uuid
     fleet       Fleet[]
-    arrivalTime DateTime @db.Timestamp(0)
-    returnTime  DateTime @db.Timestamp(0)
-    cancelled   Boolean  @default(false)
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @default(now()) @updatedAt
+    resources   Resource[]
+    arrivalTime DateTime    @db.Timestamp(0)
+    returnTime  DateTime    @db.Timestamp(0)
+    cancelled   Boolean     @default(false)
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @default(now()) @updatedAt
 }
 
 view Ranking {
