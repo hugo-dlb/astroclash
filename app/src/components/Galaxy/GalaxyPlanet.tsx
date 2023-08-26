@@ -3,7 +3,7 @@ import { getPlanetPosition } from "../../utils/galaxy";
 import { getPlanetImage } from "../../utils/planet";
 import { Box, Image } from "@chakra-ui/react";
 import { PlayerButton } from "./PlayerButton";
-import { useState } from "react";
+import { memo, useState } from "react";
 
 type GalaxyPlanetProps = {
     planet: ExtendedPlanet;
@@ -17,7 +17,7 @@ type GalaxyPlanetProps = {
     onClick: (planet: ExtendedPlanet, source: HTMLButtonElement) => void;
 };
 
-export const GalaxyPlanet = (props: GalaxyPlanetProps) => {
+export const GalaxyPlanet = memo((props: GalaxyPlanetProps) => {
     const {
         planet,
         x,
@@ -64,4 +64,4 @@ export const GalaxyPlanet = (props: GalaxyPlanetProps) => {
             </Box>
         </Box>
     );
-};
+});

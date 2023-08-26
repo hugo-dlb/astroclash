@@ -1,14 +1,12 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { ActionMenuAction, useStore } from "../../store/store";
-import { Box, VStack, useBreakpointValue } from "@chakra-ui/react";
+import { Box, useBreakpointValue } from "@chakra-ui/react";
 import { ExtendedPlanet } from "../../api/getGalaxy";
 import { CellGrid } from "../../components/Galaxy/CellGrid";
 import { GalaxyPlanet } from "../../components/Galaxy/GalaxyPlanet";
 import { ANIMATION_TIME, useGalaxy } from "./useGalaxy";
 import { GalaxyControls } from "./GalaxyControls";
-
-const BORDER_WIDTH = 2;
-const PADDING_WIDTH = 32;
+import { debounce } from "lodash";
 
 export const Galaxy = () => {
     const [containerWidth, setContainerWidth] = useState(0);
@@ -53,9 +51,8 @@ export const Galaxy = () => {
         yOverscan,
     });
 
-    const offsetTop = containerHeight / 2 - GRID_SIZE / 2 - BORDER_WIDTH;
-    const offsetLeft =
-        containerWidth / 2 - GRID_SIZE / 2 - BORDER_WIDTH - PADDING_WIDTH;
+    const offsetTop = containerHeight / 2 - GRID_SIZE / 2;
+    const offsetLeft = containerWidth / 2 - GRID_SIZE / 2;
 
     const cells: {
         cellX: number;
@@ -95,12 +92,14 @@ export const Galaxy = () => {
             setContainerHeight(container.offsetHeight);
         };
 
-        window.addEventListener("resize", updateContainerDimensions);
+        const handleResize = debounce(updateContainerDimensions, 250);
+
+        window.addEventListener("resize", handleResize);
 
         updateContainerDimensions();
 
         return () => {
-            window.removeEventListener("resize", updateContainerDimensions);
+            window.removeEventListener("resize", handleResize);
         };
     }, []);
 
@@ -112,71 +111,45 @@ export const Galaxy = () => {
     };
 
     return (
-        <>
-            <VStack
-                h="full"
-                spacing={4}
-                bg="blue.900"
-                position="relative"
-                overflowY="auto"
-                w="full"
-                pb={4}
+        <Box ref={containerRef} position="fixed" inset="0">
+            <Box
+                position="absolute"
+                transform={`translate(${offsetLeft}px, ${offsetTop}px)`}
             >
-                <Box
-                    ref={containerRef}
-                    w={{ base: "calc(100% - 32px)", lg: "calc(100% - 64px)" }}
-                    h={{
-                        base: "calc(100vh - 172px)",
-                        lg: "calc(100vh - 207px)",
-                    }}
-                    position="relative"
-                    overflow="hidden"
-                    border="2px"
-                    borderColor="blue.700"
-                    borderRadius="md"
-                    boxSizing="border-box"
-                    px={{ base: 4, lg: 8 }}
-                >
-                    <Box
-                        position="absolute"
-                        transform={`translate(${offsetLeft}px, ${offsetTop}px)`}
-                    >
-                        <Box>
-                            {cells.map(({ cellX, cellY }) => (
-                                <CellGrid
-                                    key={`${cellX}:${cellY}`}
-                                    left={(cellX - x) * GRID_SIZE}
-                                    top={(cellY - y) * GRID_SIZE}
-                                    gridSize={GRID_SIZE}
-                                    animationTime={ANIMATION_TIME}
-                                />
-                            ))}
-                        </Box>
-                        <Box>
-                            {planets.map(({ cellX, cellY, planet }) => (
-                                <GalaxyPlanet
-                                    key={planet.uid}
-                                    planet={planet}
-                                    x={x}
-                                    y={y}
-                                    cellX={cellX}
-                                    cellY={cellY}
-                                    gridSize={GRID_SIZE}
-                                    imageSize={IMAGE_SIZE}
-                                    animationTime={ANIMATION_TIME}
-                                    onClick={handleGalaxyPlanetClick}
-                                />
-                            ))}
-                        </Box>
-                    </Box>
-
-                    <GalaxyControls
-                        containerWidth={containerWidth}
-                        containerHeight={containerHeight}
-                        move={move}
-                    />
+                <Box>
+                    {cells.map(({ cellX, cellY }) => (
+                        <CellGrid
+                            key={`${cellX}:${cellY}`}
+                            left={(cellX - x) * GRID_SIZE}
+                            top={(cellY - y) * GRID_SIZE}
+                            gridSize={GRID_SIZE}
+                            animationTime={ANIMATION_TIME}
+                        />
+                    ))}
                 </Box>
-            </VStack>
-        </>
+                <Box>
+                    {planets.map(({ cellX, cellY, planet }) => (
+                        <GalaxyPlanet
+                            key={planet.uid}
+                            planet={planet}
+                            x={x}
+                            y={y}
+                            cellX={cellX}
+                            cellY={cellY}
+                            gridSize={GRID_SIZE}
+                            imageSize={IMAGE_SIZE}
+                            animationTime={ANIMATION_TIME}
+                            onClick={handleGalaxyPlanetClick}
+                        />
+                    ))}
+                </Box>
+            </Box>
+
+            <GalaxyControls
+                containerWidth={containerWidth}
+                containerHeight={containerHeight}
+                move={move}
+            />
+        </Box>
     );
 };

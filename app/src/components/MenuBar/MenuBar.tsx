@@ -52,6 +52,8 @@ export const MenuBar = (props: MenuBarProps) => {
             p={4}
             justifyContent="center"
             position="relative"
+            background="blue.900"
+            zIndex={10}
         >
             {showBackButton && (
                 <FaIconButton
