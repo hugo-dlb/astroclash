@@ -38,11 +38,19 @@ http {
         root /app/dist;
 
         location = /index.html {
+            if ($http_x_forwarded_proto != "https") {
+                return 301 https://$host$request_uri;
+            }
+
             add_header Cache-Control "no-store, no-cache";
             try_files $uri $uri/ =404;
         }
 
         location / {
+            if ($http_x_forwarded_proto != "https") {
+                return 301 https://$host$request_uri;
+            }
+
             add_header 'Cache-Control' "public, max-age=3600";
             try_files $uri $uri/ /index.html;
         }
