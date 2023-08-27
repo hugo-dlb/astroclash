@@ -34,6 +34,7 @@ export const PlayerButton = (props: PlayerButtonProps) => {
                 }}
                 onMouseEnter={onMouseEnter}
                 onMouseOut={onMouseOut}
+                px={2}
                 onClick={(event) => onClick(event.target as HTMLButtonElement)}
             >
                 <VStack spacing={1} p={2} pointerEvents="none">

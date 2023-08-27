@@ -7,6 +7,7 @@ import { GalaxyPlanet } from "../../components/Galaxy/GalaxyPlanet";
 import { ANIMATION_TIME, useGalaxy } from "./useGalaxy";
 import { GalaxyControls } from "./GalaxyControls";
 import { debounce } from "lodash";
+import { Coordinates } from "./Coordinates";
 
 export const Galaxy = () => {
     const [containerWidth, setContainerWidth] = useState(0);
@@ -112,6 +113,7 @@ export const Galaxy = () => {
 
     return (
         <Box ref={containerRef} position="fixed" inset="0">
+            <Coordinates x={x} y={y} />
             <Box
                 position="absolute"
                 transform={`translate(${offsetLeft}px, ${offsetTop}px)`}
@@ -144,7 +146,6 @@ export const Galaxy = () => {
                     ))}
                 </Box>
             </Box>
-
             <GalaxyControls
                 containerWidth={containerWidth}
                 containerHeight={containerHeight}
