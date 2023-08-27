@@ -1,12 +1,19 @@
-import { Text, Image, HStack, VStack, useToast } from "@chakra-ui/react";
+import { Text, Image, HStack, VStack } from "@chakra-ui/react";
 import { selectPlanetResource } from "../../store/selectors";
 import { useStore } from "../../store/store";
-import { Building, Planet } from "../../types/types";
+import { Building, BuildingType, Planet } from "../../types/types";
 import { Button } from "../Button";
 import { FaIcon } from "../FaIcon";
 import { faInfoCircle } from "@fortawesome/pro-regular-svg-icons";
-import { getBuildingCost } from "../../utils/building";
+import {
+    getBuildingCost,
+    getBuildingLabel,
+    getCrystalMineProduction,
+    getSpaceDockSpace,
+} from "../../utils/building";
 import { getEntityLabel } from "../../utils/entity";
+import { Characteristic, CharacteristicsModal } from "../CharacteristicsModal";
+import { useState } from "react";
 
 const formatter = new Intl.NumberFormat(undefined, {
     maximumFractionDigits: 0,
@@ -19,23 +26,43 @@ type BuildingMenuProps = {
 
 export const BuildingMenu = (props: BuildingMenuProps) => {
     const { planet, building } = props;
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const upgrade = useStore((state) => state.upgradeBuilding);
     const resource = selectPlanetResource(planet);
     const nextLevelCost = getBuildingCost(building.type, building.level + 1);
     const isUpgradeDisabled = resource.value < nextLevelCost;
-    const toast = useToast();
+    const characteristics: Characteristic[] = [
+        {
+            label: "Level",
+            value: building.level,
+            type: "DEFAULT",
+        },
+        {
+            label:
+                building.type === BuildingType.CRYSTAL_MINE
+                    ? "Production"
+                    : "Capacity",
+            value:
+                building.type === BuildingType.CRYSTAL_MINE
+                    ? formatter.format(
+                          getCrystalMineProduction(building.level)
+                      ) + " crystal per hour"
+                    : getSpaceDockSpace(building.level) + " spaceships",
+            type: "DEFAULT",
+        },
+    ];
 
     const handleUpgradeClick = () => {
         upgrade(building);
     };
 
-    const handleDetailsClick = () =>
-        toast({
-            title: "Oops!",
-            description: "This feature is coming soon. Stay tuned. :)",
-            status: "info",
-            isClosable: true,
-        });
+    const handleDetailsClick = () => {
+        setIsDetailsModalOpen((previousValue) => !previousValue);
+    };
+
+    const handleDetailsModalClose = () => {
+        setIsDetailsModalOpen(false);
+    };
 
     return (
         <VStack>
@@ -71,6 +98,12 @@ export const BuildingMenu = (props: BuildingMenuProps) => {
                     </VStack>
                 </Button>
             </HStack>
+            <CharacteristicsModal
+                header={getBuildingLabel(building.type)}
+                characteristics={characteristics}
+                isOpen={isDetailsModalOpen}
+                onClose={handleDetailsModalClose}
+            />
         </VStack>
     );
 };

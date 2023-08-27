@@ -6,6 +6,7 @@ import { FaIcon } from "../FaIcon";
 import { faInfoCircle } from "@fortawesome/pro-regular-svg-icons";
 import {
     getFleetAttackPoints,
+    getFleetExtendedLabel,
     getFleetHealthPoints,
     getFleetLabel,
     getFleetScrapNumber,
@@ -17,6 +18,7 @@ import { UpgradeFleetModal } from "./UpgradeFleetModal";
 import { getEntityLabel } from "../../utils/entity";
 import { Characteristic, CharacteristicsModal } from "../CharacteristicsModal";
 import { getRarityMultiplier } from "../../utils/rarity";
+import { ConfirmationModal } from "../ConfirmationModal";
 
 const formatter = new Intl.NumberFormat(undefined, {
     maximumFractionDigits: 0,
@@ -32,6 +34,8 @@ export const FleetMenu = (props: FleetMenuProps) => {
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+    const [isScrapConfirmationModalOpen, setIsScrapConfirmationModalOpen] =
+        useState(false);
     const scrapFleet = useStore((state) => state.scrapFleet);
     const resource = selectPlanetResource(planet);
     const canUpgradeFleet =
@@ -64,7 +68,8 @@ export const FleetMenu = (props: FleetMenuProps) => {
         },
     ];
 
-    const handleScrapClick = async () => {
+    const handleScrapConfirm = async () => {
+        setIsScrapConfirmationModalOpen(false);
         setIsLoading(true);
         try {
             await scrapFleet(planet.uid, fleet.uid);
@@ -106,7 +111,7 @@ export const FleetMenu = (props: FleetMenuProps) => {
                     </VStack>
                 </Button>
                 <Button
-                    onClick={handleScrapClick}
+                    onClick={() => setIsScrapConfirmationModalOpen(true)}
                     colorScheme="red"
                     h="auto"
                     py={4}
@@ -155,6 +160,17 @@ export const FleetMenu = (props: FleetMenuProps) => {
                     characteristics={characteristics}
                     isOpen={isDetailsModalOpen}
                     onClose={handleDetailsModalClose}
+                />
+                <ConfirmationModal
+                    isOpen={isScrapConfirmationModalOpen}
+                    headerText="Confirmation"
+                    descriptionText={`Are you sure you want to scrap spaceship ${getFleetExtendedLabel(
+                        fleet
+                    )}? It will be forever lost.`}
+                    confirmButtonColorScheme="red"
+                    confirmText="Scrap"
+                    onConfirm={handleScrapConfirm}
+                    onCancel={() => setIsScrapConfirmationModalOpen(false)}
                 />
             </HStack>
         </VStack>

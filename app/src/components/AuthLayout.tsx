@@ -41,6 +41,8 @@ export const AuthLayout = (props: AuthLayoutProps) => {
                     backgroundImage={`/assets/background.jpg`}
                     backgroundSize="cover"
                     backgroundBlendMode="hard-light"
+                    borderRightWidth="2px"
+                    borderColor="blue.700"
                 />
             )}
             <Container maxWidth="8xl" position="relative" px={8}>
