@@ -38,9 +38,12 @@ export const AuthLayout = (props: AuthLayoutProps) => {
                     right="50%"
                     bottom="0"
                     backgroundColor="blue.700"
+                    backgroundImage={`/assets/background.png`}
+                    backgroundSize="cover"
+                    backgroundBlendMode="hard-light"
                 />
             )}
-            <Container maxWidth="6xl" position="relative" px={8}>
+            <Container maxWidth="8xl" position="relative" px={8}>
                 <HStack
                     h="100vh"
                     spacing={[0, 0, 0, 16, 48]}
