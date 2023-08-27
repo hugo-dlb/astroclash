@@ -38,7 +38,7 @@ export const AuthLayout = (props: AuthLayoutProps) => {
                     right="50%"
                     bottom="0"
                     backgroundColor="blue.700"
-                    backgroundImage={`/assets/background.png`}
+                    backgroundImage={`/assets/background.jpg`}
                     backgroundSize="cover"
                     backgroundBlendMode="hard-light"
                 />
