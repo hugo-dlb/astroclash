@@ -50,6 +50,19 @@ export const BuildingMenu = (props: BuildingMenuProps) => {
                     : getSpaceDockSpace(building.level) + " spaceships",
             type: "DEFAULT",
         },
+        {
+            label:
+                building.type === BuildingType.CRYSTAL_MINE
+                    ? "Next Level Production"
+                    : "Next Level Capacity",
+            value:
+                building.type === BuildingType.CRYSTAL_MINE
+                    ? formatter.format(
+                          getCrystalMineProduction(building.level + 1)
+                      ) + " crystal per hour"
+                    : getSpaceDockSpace(building.level + 1) + " spaceships",
+            type: "DEFAULT",
+        },
     ];
 
     const handleUpgradeClick = () => {

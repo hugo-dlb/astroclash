@@ -13,6 +13,7 @@ type GalaxyPlanetMenuProps = {
 
 export const GalaxyPlanetMenu = (props: GalaxyPlanetMenuProps) => {
     const { planet } = props;
+    const user = useStore((state) => state.user);
     const closeMenu = useStore((state) => state.closeMenu);
     const navigate = useNavigate();
 
@@ -49,6 +50,7 @@ export const GalaxyPlanetMenu = (props: GalaxyPlanetMenuProps) => {
                     h="96px"
                     colorScheme="red"
                     px={6}
+                    isDisabled={planet.user.uid === user.uid}
                 >
                     <VStack spacing={2}>
                         <FaIcon icon={faCrosshairs} size="2xl" />

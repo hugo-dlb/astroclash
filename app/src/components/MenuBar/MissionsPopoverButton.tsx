@@ -17,7 +17,8 @@ import { EntityType, Mission } from "../../types/types";
 import { faWarning } from "@fortawesome/pro-solid-svg-icons";
 import { Actionable } from "../ActionMenu/Actionable";
 import { getMissionFormattedDuration } from "./getMissionFormattedDuration";
-import { differenceInSeconds } from "date-fns";
+import { differenceInSeconds, isAfter } from "date-fns";
+import { faRightLeft } from "@fortawesome/pro-duotone-svg-icons";
 
 export const MissionsPopoverButton = () => {
     const openMenu = useStore((state) => state.openMenu);
@@ -27,13 +28,25 @@ export const MissionsPopoverButton = () => {
     const userPlanetUids = planets.map((planet) => planet.uid);
     const [now, setNow] = useState(new Date());
     const lastMissionUpdateTimestamp = useRef<Date>();
-    const missionDurations = missions.map(mission => getMissionFormattedDuration(mission, userPlanetUids.includes(
-        mission.target.uid
-    ), now));
-    const shouldUpdateMissions = missionDurations.some(duration => duration === "Done");
+    const missionDurations = missions.map((mission) =>
+        getMissionFormattedDuration(
+            mission,
+            userPlanetUids.includes(mission.target.uid),
+            now
+        )
+    );
+    const shouldUpdateMissions = missionDurations.some(
+        (duration) => duration === "Done"
+    );
 
     if (shouldUpdateMissions) {
-        if (!lastMissionUpdateTimestamp.current || (differenceInSeconds(new Date(), lastMissionUpdateTimestamp.current) > 5)) {
+        if (
+            !lastMissionUpdateTimestamp.current ||
+            differenceInSeconds(
+                new Date(),
+                lastMissionUpdateTimestamp.current
+            ) > 5
+        ) {
             getMissions();
             lastMissionUpdateTimestamp.current = new Date();
         }
@@ -91,6 +104,9 @@ export const MissionsPopoverButton = () => {
                         const isIncoming = userPlanetUids.includes(
                             mission.target.uid
                         );
+                        const isReturning =
+                            !isIncoming &&
+                            isAfter(new Date(mission.returnTime!), new Date());
                         const duration = missionDurations[index];
 
                         return (
@@ -181,6 +197,14 @@ export const MissionsPopoverButton = () => {
                                             </HStack>
                                         </Badge>
                                     </HStack>
+                                    {!isIncoming && (
+                                        <FaIcon
+                                            icon={faRightLeft}
+                                            rotation={
+                                                isReturning ? 180 : undefined
+                                            }
+                                        />
+                                    )}
                                     <Text
                                         fontSize="sm"
                                         color={

@@ -12,7 +12,7 @@ import {
 import { IconButton, IconButtonProps } from "@chakra-ui/react";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
-type FaIconProps = Pick<FontAwesomeIconProps, "color" | "size"> & {
+type FaIconProps = Pick<FontAwesomeIconProps, "color" | "size" | "rotation"> & {
     icon: IconDefinition;
 } & StyleProps;
 
