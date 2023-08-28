@@ -106,7 +106,7 @@ export const MissionsPopoverButton = () => {
                         );
                         const isReturning =
                             !isIncoming &&
-                            isAfter(new Date(mission.returnTime!), new Date());
+                            isAfter(new Date(), new Date(mission.arrivalTime));
                         const duration = missionDurations[index];
 
                         return (
