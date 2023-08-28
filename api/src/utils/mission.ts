@@ -3,7 +3,6 @@ import { getFleetLootNumber, getFleetValue, getSlowestFleetSpeed } from "./fleet
 import { prisma } from "../middlewares/prismaMiddleware";
 import { Mission } from "../types/Mission";
 import { executeBattle } from "./battle";
-import { getPlanetResource } from "./planet";
 import { addResourcesToPlanet, removeResourcesFromPlanet, updatePlanetResources } from "./resource";
 
 const MINIMUM_TRAVEL_TIME = 10 * 60;
@@ -65,7 +64,7 @@ export const getUserMissions = async (userUid: string, isInternal = false) => {
 
     // hide the incoming attacks after they reached their target
     const filteredMissions = isInternal ? missions : missions.filter(mission => {
-        return (mission.target.userUid !== userUid) || (mission.arrivalTime >= now);
+        return (mission.target.userUid !== userUid) || (!mission.cancelled && mission.arrivalTime >= now);
     });
 
     for (const mission of filteredMissions) {
@@ -149,13 +148,6 @@ export const executeMission = async (missionUid: string, attackerUserUid: string
     } = executeBattle(defenderFleet, attackerFleet);
     let missionDeleted = false;
 
-    console.log({
-        defenderRemainingFleet,
-        attackerRemainingFleet,
-        defenderLostFleet,
-        attackerLostFleet
-    });
-
     const mission = await prisma.mission.findFirstOrThrow({
         where: {
             uid: missionUid
@@ -185,9 +177,6 @@ export const executeMission = async (missionUid: string, attackerUserUid: string
     const attackerWon = defenderRemainingFleet.length === 0 && attackerRemainingFleet.length > 0;
     const defenderWon = attackerRemainingFleet.length === 0 && defenderRemainingFleet.length > 0;
 
-    console.log(attackerWon);
-    console.log(defenderWon);
-
     if (attackerWon) {
         const targetPlanet = await prisma.planet.findFirstOrThrow({
             where: {
@@ -200,7 +189,6 @@ export const executeMission = async (missionUid: string, attackerUserUid: string
         });
         const updatedPlanetResources = await updatePlanetResources(targetPlanet);
         resourcesLoot += updatedPlanetResources;
-        console.log(updatedPlanetResources);
         await updateMissionResources(mission.uid, resourcesLoot);
         await removeResourcesFromPlanet(mission.targetUid, updatedPlanetResources);
     } else if (defenderWon) {

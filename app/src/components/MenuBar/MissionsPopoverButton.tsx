@@ -201,7 +201,9 @@ export const MissionsPopoverButton = () => {
                                         <FaIcon
                                             icon={faRightLeft}
                                             rotation={
-                                                isReturning ? 180 : undefined
+                                                isReturning || mission.cancelled
+                                                    ? 180
+                                                    : undefined
                                             }
                                         />
                                     )}

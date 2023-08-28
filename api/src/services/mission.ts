@@ -22,7 +22,6 @@ router.get('/missions', authMiddleware, async (req: Request, res: Response) => {
         const hasReturned = !isIncoming && isBefore(new Date(mission.returnTime!), new Date());
 
         if (isIncoming) {
-            console.log('isIncoming');
             if (!hasReachedDestination) {
                 continue;
             }
@@ -37,43 +36,27 @@ router.get('/missions', authMiddleware, async (req: Request, res: Response) => {
             continue;
         }
 
-        if (hasReachedDestination) {
-            console.log('hasReachedDestination');
-            const defenderFleet = await prisma.fleet.findMany({
-                where: {
-                    planetUid: mission.targetUid
-                }
-            });
-
-            const missionDeleted = await executeMission(mission.uid, mission.source.userUid, mission.target.userUid, mission.fleet, defenderFleet);
-
-            if (hasReturned && !missionDeleted) {
-                console.log('hasReturned');
-
-            }
-
-            const updatedMission = await prisma.mission.findFirstOrThrow({
-                where: {
-                    uid: mission.uid
-                },
-                include: {
-                    resources: true
-                }
-            });
-            if (updatedMission.resources.length > 0) {
-                addResourcesToPlanet(mission.sourceUid, updatedMission.resources[0].value);
-            }
-            missionsToBeDeleted.push(mission);
-            continue;
-        }
-
         if (hasReturned) {
-            console.log('hasReturned');
             if (mission.resources.length > 0) {
                 addResourcesToPlanet(mission.sourceUid, mission.resources[0].value);
             }
             missionsToBeDeleted.push(mission);
             continue;
+        }
+
+        if (hasReachedDestination) {
+            if (mission.cancelled) {
+                continue;
+            }
+
+            const defenderFleet = await prisma.fleet.findMany({
+                where: {
+                    planetUid: mission.targetUid,
+                    missionUid: null
+                }
+            });
+
+            await executeMission(mission.uid, mission.source.userUid, mission.target.userUid, mission.fleet, defenderFleet);
         }
     }
 
@@ -139,8 +122,6 @@ router.post('/missions', authMiddleware, bodyValidationMiddleware(createMissionV
     }
 
     const duration = getMissionDuration(sourcePlanet.coordinates, targetPlanet.coordinates, fleet) * 1000;
-
-    console.log(fleetUids.map(uid => ({ uid })));
 
     await prisma.mission.create({
         data: {

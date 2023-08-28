@@ -122,6 +122,7 @@ export type Mission = {
     arrivalTime: string;
     returnTime?: string;
     userUid: string;
+    cancelled: boolean;
 }
 
 export type Entity = Building | Fleet | Resource | Mission | ExtendedPlanet;
