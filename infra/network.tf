@@ -42,7 +42,7 @@ resource "aws_route_table" "private_route_table_a" {
 
     route {
         cidr_block      = "0.0.0.0/0"
-        nat_gateway_id  = aws_nat_gateway.public_a.id
+        nat_gateway_id  = aws_nat_gateway.nat_gateway.id
     }
 }
 
@@ -51,7 +51,7 @@ resource "aws_route_table" "private_route_table_b" {
 
     route {
         cidr_block      = "0.0.0.0/0"
-        nat_gateway_id  = aws_nat_gateway.public_b.id
+        nat_gateway_id  = aws_nat_gateway.nat_gateway.id
     }
 }
 
@@ -79,15 +79,9 @@ resource "aws_internet_gateway" "internet_gateway" {
     vpc_id = "${aws_vpc.vpc_app.id}"
 }
 
-resource "aws_nat_gateway" "public_a" {
+resource "aws_nat_gateway" "nat_gateway" {
     allocation_id = aws_eip.public_a.id
     subnet_id     = aws_subnet.public_a.id
-    depends_on    = [aws_internet_gateway.internet_gateway]
-}
-
-resource "aws_nat_gateway" "public_b" {
-    allocation_id = aws_eip.public_b.id
-    subnet_id     = aws_subnet.public_b.id
     depends_on    = [aws_internet_gateway.internet_gateway]
 }
  

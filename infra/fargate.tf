@@ -11,6 +11,7 @@ locals {
     connection_string = "postgresql://postgres:${aws_secretsmanager_secret_version.rds_password.secret_string}@${aws_db_instance.postgres.endpoint}/astroclash"
 }
 
+// TODO try Spot instances in dev for lower costs
 resource "aws_ecs_task_definition" "backend_task" {
     family = "backend_app_family"
 
