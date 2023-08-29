@@ -1,4 +1,4 @@
-import { MouseEventHandler, memo, useCallback } from "react";
+import { MouseEventHandler, memo } from "react";
 import { VStack, Tooltip, Text, Box, Fade } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { getFleetImage, getFleetExtendedLabel } from "../utils/fleet";

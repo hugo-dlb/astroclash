@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, HStack, Tooltip, Button, Box } from "@chakra-ui/react";
+import { Text, HStack, Tooltip, Button } from "@chakra-ui/react";
 import {
     faArrowLeft,
     faEnvelope,
