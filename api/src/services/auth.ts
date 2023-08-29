@@ -40,11 +40,7 @@ router.get('/auth/profile', authMiddleware, async (req: Request, res: Response) 
                 include: {
                     resources: true,
                     buildings: true,
-                    fleet: {
-                        where: {
-                            mission: { is: null }
-                        }
-                    },
+                    fleet: true,
                     coordinates: {
                         select: {
                             uid: true,
@@ -205,11 +201,7 @@ router.post('/auth/login', bodyValidationMiddleware(loginValidator), async (req:
                     include: {
                         resources: true,
                         buildings: true,
-                        fleet: {
-                            where: {
-                                mission: { is: null }
-                            }
-                        },
+                        fleet: true,
                         coordinates: {
                             select: {
                                 uid: true,

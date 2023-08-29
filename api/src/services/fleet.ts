@@ -10,6 +10,29 @@ import { getFleetScrapNumber, getFleetTypeCost, getFleetUpgradeCost } from "../u
 
 const router = Router();
 
+router.get('/planets/:planetUid/fleet', authMiddleware, async (req: Request, res: Response) => {
+    const { prisma, user, params } = req;
+    const { planetUid } = params;
+
+    if (!planetUid) {
+        return res.status(400).json({ error: "Missing planet uid" });
+    }
+
+    const planet = await prisma.planet.findFirstOrThrow({
+        where: {
+            userUid: user.userUid,
+            uid: planetUid
+        },
+        include: {
+            fleet: true
+        }
+    });
+
+    res.json({
+        data: planet.fleet
+    });
+});
+
 const createFleetValidator = object({
     type: mixed<FleetType>().oneOf(Object.values(FleetType))
         .required()
@@ -75,6 +98,9 @@ router.delete('/planets/:planetUid/fleet/:fleetUid', authMiddleware, async (req:
         where: {
             uid: fleetUid,
             planetUid,
+            mission: {
+                is: null
+            }
         },
         include: {
             planet: {
@@ -125,6 +151,9 @@ router.post('/planets/:planetUid/fleet/:fleetUid/upgrade', authMiddleware, async
         where: {
             uid: fleetUid,
             planetUid,
+            mission: {
+                is: null
+            }
         },
         include: {
             planet: {

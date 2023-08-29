@@ -188,9 +188,10 @@ export const executeMission = async (missionUid: string, attackerUserUid: string
             }
         });
         const updatedPlanetResources = await updatePlanetResources(targetPlanet);
-        resourcesLoot += updatedPlanetResources;
+        const planetLoot = Math.floor(updatedPlanetResources / 2);
+        resourcesLoot += planetLoot;
         await updateMissionResources(mission.uid, resourcesLoot);
-        await removeResourcesFromPlanet(mission.targetUid, updatedPlanetResources);
+        await removeResourcesFromPlanet(mission.targetUid, planetLoot);
     } else if (defenderWon) {
         await addResourcesToPlanet(mission.targetUid, resourcesLoot);
         await deleteMission(mission);
