@@ -3,10 +3,11 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 import { InferType, object, string, array } from "yup";
 import { bodyValidationMiddleware } from "../utils/dataValidation";
 import { executeMission, getMissionDuration, getUserMissions } from "../utils/mission";
-import { Coordinates, Planet } from "@prisma/client";
+import { Coordinates, MessageType, Planet } from "@prisma/client";
 import { addSeconds, differenceInSeconds, isBefore } from "date-fns";
 import { prisma } from "../middlewares/prismaMiddleware";
 import { addResourcesToPlanet } from "../utils/resource";
+import { sendMessage } from "../utils/message";
 
 const router = Router();
 
@@ -41,6 +42,9 @@ router.get('/missions', authMiddleware, async (req: Request, res: Response) => {
                 addResourcesToPlanet(mission.sourceUid, mission.resources[0].value);
             }
             missionsToBeDeleted.push(mission);
+
+            const messageContent = `${mission.fleet.length} spaceship${mission.fleet.length === 0 ? '' : 's'} returned from planet ${mission.target.name}${mission.resources.length > 0 ? ` with ${mission.resources[0].value} crystal` : ''}.`;
+            await sendMessage(user.userUid, MessageType.MissionReturn, messageContent, mission.returnTime!);
             continue;
         }
 

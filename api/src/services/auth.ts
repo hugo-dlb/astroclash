@@ -24,7 +24,8 @@ router.get('/auth/profile', authMiddleware, async (req: Request, res: Response) 
         select: {
             uid: true,
             username: true,
-            email: true
+            email: true,
+            messages: true
         }
     });
 
@@ -174,6 +175,9 @@ router.post('/auth/login', bodyValidationMiddleware(loginValidator), async (req:
         const user = await prisma.user.findFirstOrThrow({
             where: {
                 email
+            },
+            include: {
+                messages: true
             }
         });
 
@@ -192,7 +196,8 @@ router.post('/auth/login', bodyValidationMiddleware(loginValidator), async (req:
                 user: {
                     uid: user.uid,
                     username: user.username,
-                    email: user.email
+                    email: user.email,
+                    messages: user.messages
                 },
                 planets: await prisma.planet.findMany({
                     where: {

@@ -16,6 +16,7 @@ model User {
     createdAt DateTime  @default(now())
     updatedAt DateTime  @default(now()) @updatedAt
     planets   Planet[]
+    messages  Message[]
     rank      Rank?
     pastRank  PastRank?
 }
@@ -136,6 +137,17 @@ model Mission {
     updatedAt   DateTime    @default(now()) @updatedAt
 }
 
+model Message {
+    uid       String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    type      MessageType
+    content   String
+    read      Boolean     @default(false)
+    user      User        @relation(fields: [userUid], references: [uid])
+    userUid   String      @db.Uuid
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @default(now()) @updatedAt
+}
+
 view Ranking {
     userUid   String   @unique @db.Uuid
     rank      Int
@@ -171,4 +183,9 @@ enum FleetType {
 enum BuildingType {
     CRYSTAL_MINE
     SPACE_DOCK
+}
+
+enum MessageType {
+    MissionResult
+    MissionReturn
 }
