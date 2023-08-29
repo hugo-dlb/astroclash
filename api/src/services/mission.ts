@@ -151,8 +151,16 @@ router.post('/missions', authMiddleware, bodyValidationMiddleware(createMissionV
         },
         include: {
             fleet: true,
-            source: true,
-            target: true
+            source: {
+                include: {
+                    coordinates: true
+                }
+            },
+            target: {
+                include: {
+                    coordinates: true
+                }
+            }
         }
     });
 
