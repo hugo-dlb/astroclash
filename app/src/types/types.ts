@@ -82,7 +82,17 @@ export type User = {
     uid: string;
     username: string;
     email: string;
+    messages: Message[];
 };
+
+export type Message = {
+    uid: string;
+    type: MessageType;
+    content: string;
+    read: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
 
 export type RankUser = {
     uid: string;
@@ -137,4 +147,9 @@ export enum EntityType {
 export type EntityReference = {
     uid: string;
     type: EntityType;
+}
+
+export enum MessageType {
+    MissionResult = "MissionResult",
+    MissionReturn = "MissionReturn"
 }

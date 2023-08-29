@@ -68,7 +68,8 @@ export const defaultState: State = {
     user: {
         uid: "",
         username: "",
-        email: ""
+        email: "",
+        messages: []
     },
     planets: [],
     actionMenu: {

@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { Text, HStack, Tooltip, Button } from "@chakra-ui/react";
-import { faArrowLeft, faPowerOff } from "@fortawesome/pro-regular-svg-icons";
+import { Text, HStack, Tooltip, Button, Box } from "@chakra-ui/react";
+import {
+    faArrowLeft,
+    faEnvelope,
+    faPowerOff,
+} from "@fortawesome/pro-regular-svg-icons";
 import { FaIconButton } from "../FaIcon";
 import { useStore } from "../../store/store";
 import { useNavigate, useParams } from "react-router-dom";
@@ -43,46 +47,60 @@ export const MenuBar = (props: MenuBarProps) => {
         }
     };
 
+    const handleMessagesClick = () => {
+        if (planetUid) {
+            navigate(`/messages?planetUid=${planetUid}`);
+        } else {
+            navigate("/messages");
+        }
+    };
+
     return (
         <HStack
             w="full"
+            p={2}
             border="2px"
             borderColor="blue.700"
             borderRadius="md"
-            p={4}
-            justifyContent="center"
-            position="relative"
+            justifyContent="space-between"
             background="blue.900"
+            position="relative"
             zIndex={10}
         >
-            {showBackButton && (
+            <HStack minW="150px" justifyContent="start">
+                {showBackButton && (
+                    <FaIconButton
+                        aria-label="Back"
+                        tooltip="Back"
+                        icon={faArrowLeft}
+                        onClick={handleBack}
+                    />
+                )}
+            </HStack>
+            <HStack>
+                <Text>{user.username}</Text>
+                <Tooltip label="Check leaderboard" placement="right">
+                    <Button size="sm" fontSize="md" onClick={handleRanking}>
+                        <Counter value={rank.rank} />
+                    </Button>
+                </Tooltip>
+            </HStack>
+            <HStack minW="150px" justifyContent="end">
+                <MissionsPopoverButton />
                 <FaIconButton
-                    aria-label="Back"
-                    tooltip="Back"
-                    icon={faArrowLeft}
-                    onClick={handleBack}
-                    position="absolute"
-                    left="12px"
-                    top="12px"
+                    aria-label="Messages"
+                    tooltip="Messages"
+                    icon={faEnvelope}
+                    onClick={handleMessagesClick}
                 />
-            )}
-            <Text>{user.username}</Text>
-            <Tooltip label="Check leaderboard" placement="right">
-                <Button size="sm" fontSize="md" onClick={handleRanking}>
-                    <Counter value={rank.rank} />
-                </Button>
-            </Tooltip>
-            <MissionsPopoverButton />
-            <FaIconButton
-                aria-label="Logout"
-                tooltip="Logout"
-                icon={faPowerOff}
-                onClick={handleLogout}
-                isLoading={isLogoutLoading}
-                position="absolute"
-                right="12px"
-                top="12px"
-            />
+                <FaIconButton
+                    aria-label="Logout"
+                    tooltip="Logout"
+                    icon={faPowerOff}
+                    onClick={handleLogout}
+                    isLoading={isLogoutLoading}
+                />
+            </HStack>
         </HStack>
     );
 };

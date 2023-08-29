@@ -105,9 +105,6 @@ export const MissionsPopoverButton = () => {
                     tooltip={`Missions (${missions.length})`}
                     icon={faStarfighter}
                     iconColor={isUnderAttack ? "red.900" : undefined}
-                    position="absolute"
-                    right="64px"
-                    top="12px"
                     colorScheme={isUnderAttack ? "red" : undefined}
                 />
             </PopoverTrigger>

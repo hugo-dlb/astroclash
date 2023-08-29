@@ -8,6 +8,7 @@ import { Ranking } from "./pages/Ranking";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Galaxy } from "./pages/Galaxy/Galaxy";
 import { Attack } from "./pages/Attack/Attack";
+import { Messages } from "./pages/Messages";
 
 export const router = createBrowserRouter([
     {
@@ -58,6 +59,14 @@ export const router = createBrowserRouter([
         element: (
             <ProtectedRoute>
                 <Ranking />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: "messages",
+        element: (
+            <ProtectedRoute>
+                <Messages />
             </ProtectedRoute>
         ),
     },
