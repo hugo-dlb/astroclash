@@ -33,15 +33,17 @@ export const PlanetFleetSection = (props: PlanetFleetSectionProps) => {
     )!.level;
     const spaceDockSpace = getSpaceDockSpace(spaceDockLevel);
     const canBuildFleet = planet.fleet.length < spaceDockSpace;
-    const fleetWithMissions = planet.fleet.map((fleet) => ({
-        ...fleet,
-        mission: missions.find(
-            (mission) =>
-                mission.fleet.find(
-                    (spaceship) => spaceship.uid === fleet.uid
-                ) !== undefined
-        ),
-    }));
+    const fleetWithMissions = planet.fleet
+        .map((fleet) => ({
+            ...fleet,
+            mission: missions.find(
+                (mission) =>
+                    mission.fleet.find(
+                        (spaceship) => spaceship.uid === fleet.uid
+                    ) !== undefined
+            ),
+        }))
+        .sort((a, b) => b.level - a.level);
 
     const handleFleetClick = useCallback(
         (source: HTMLButtonElement, fleet: FleetType) => {
