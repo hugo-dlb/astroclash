@@ -16,7 +16,8 @@ import { getPlanetImage } from "../../utils/planet";
 import { EntityType, Mission } from "../../types/types";
 import { faWarning } from "@fortawesome/pro-solid-svg-icons";
 import { Actionable } from "../ActionMenu/Actionable";
-import { getMissionFormattedDuration } from "./getMissionFormattedDuration";
+import { formatDuration } from "../../utils/date";
+import { getMissionTimeLeft } from "./getMissionFormattedDuration";
 import { differenceInSeconds, isAfter } from "date-fns";
 import { faRightLeft } from "@fortawesome/pro-duotone-svg-icons";
 
@@ -28,15 +29,23 @@ export const MissionsPopoverButton = () => {
     const userPlanetUids = planets.map((planet) => planet.uid);
     const [now, setNow] = useState(new Date());
     const lastMissionUpdateTimestamp = useRef<Date>();
-    const missionDurations = missions.map((mission) =>
-        getMissionFormattedDuration(
+    const missionsWithTimeLeft = missions.map((mission) => {
+        const timeLeft = getMissionTimeLeft(
             mission,
             userPlanetUids.includes(mission.target.uid),
             now
-        )
-    );
-    const shouldUpdateMissions = missionDurations.some(
-        (duration) => duration === "Done"
+        );
+
+        return {
+            ...mission,
+            timeLeft,
+            formattedTimeLeft:
+                timeLeft <= 0 ? "Done" : formatDuration(timeLeft),
+        };
+    });
+
+    const shouldUpdateMissions = missionsWithTimeLeft.some(
+        (mission) => mission.timeLeft === 0
     );
 
     if (shouldUpdateMissions) {
@@ -47,7 +56,7 @@ export const MissionsPopoverButton = () => {
                 lastMissionUpdateTimestamp.current
             ) > 5
         ) {
-            getMissions();
+            setTimeout(getMissions, 1000);
             lastMissionUpdateTimestamp.current = new Date();
         }
     }
@@ -64,10 +73,8 @@ export const MissionsPopoverButton = () => {
         return null;
     }
 
-    const sortedMissions = [...missions].sort(
-        (a, b) =>
-            new Date(a.arrivalTime).getTime() -
-            new Date(b.arrivalTime).getTime()
+    const sortedMissions = missionsWithTimeLeft.sort(
+        (a, b) => a.timeLeft - b.timeLeft
     );
 
     const handleMissionClick = (source: HTMLDivElement, mission: Mission) => {
@@ -100,14 +107,13 @@ export const MissionsPopoverButton = () => {
             </PopoverTrigger>
             <PopoverContent w="360px" overflow="hidden">
                 <Box>
-                    {sortedMissions.map((mission, index) => {
+                    {sortedMissions.map((mission) => {
                         const isIncoming = userPlanetUids.includes(
                             mission.target.uid
                         );
                         const isReturning =
                             !isIncoming &&
                             isAfter(new Date(), new Date(mission.arrivalTime));
-                        const duration = missionDurations[index];
 
                         return (
                             <Actionable key={mission.uid}>
@@ -213,7 +219,7 @@ export const MissionsPopoverButton = () => {
                                             isIncoming ? dangerColor : undefined
                                         }
                                     >
-                                        {duration}
+                                        {mission.formattedTimeLeft}
                                     </Text>
                                 </HStack>
                             </Actionable>

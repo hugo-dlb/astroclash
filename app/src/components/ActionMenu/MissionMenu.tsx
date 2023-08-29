@@ -41,7 +41,10 @@ export const MissionMenu = (props: MissionMenuProps) => {
         },
         {
             label: "Arrival Date",
-            value: format(new Date(mission.arrivalTime), "dd/MM/yy hh:mm:ss a"),
+            value: `${format(
+                new Date(mission.arrivalTime),
+                "dd/MM/yy hh:mm:ss a"
+            )}${mission.cancelled ? " · Cancelled" : ""}`,
             type: "DEFAULT",
         },
         isUnderAttack
@@ -104,6 +107,7 @@ export const MissionMenu = (props: MissionMenuProps) => {
                     py={4}
                     px={6}
                     isLoading={isLoading}
+                    isDisabled={mission.cancelled}
                 >
                     <VStack>
                         <FaIcon icon={faBan} size="lg" />

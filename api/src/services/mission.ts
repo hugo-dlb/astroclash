@@ -197,10 +197,16 @@ router.delete('/missions/:missionUid', authMiddleware, async (req: Request<{ mis
     });
 
     if (mission.source.userUid !== user.userUid) {
-        return res.status(403).json({ error: "You don't have permission to access this resource" });
+        // in reality the mission exists but we don't want to give too much information
+        return res.status(404).json({ error: "Mission not found" });
+    }
+
+    if (mission.cancelled) {
+        return res.status(400).json({ error: "This mission is already on its way back" });
     }
 
     const timeElapsed = differenceInSeconds(new Date(), mission.createdAt);
+
     await prisma.mission.update({
         where: {
             uid: mission.uid
