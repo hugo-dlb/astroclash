@@ -32,6 +32,7 @@ import { Button } from "../../components/Button";
 import { FaIcon } from "../../components/FaIcon";
 import { Card } from "../../components/Card";
 import { faCrosshairs } from "@fortawesome/pro-duotone-svg-icons";
+import { faCircleCheck } from "@fortawesome/pro-regular-svg-icons";
 
 export type AttackProps = {
     planet: ExtendedPlanet;
@@ -154,9 +155,10 @@ export const Attack = () => {
                                 <Fleet
                                     key={fleet.uid}
                                     fleet={fleet}
-                                    isSelected={selectedFleetUids.includes(
+                                    hasLowOpacity={selectedFleetUids.includes(
                                         fleet.uid
                                     )}
+                                    lowOpacityIcon={faCircleCheck}
                                     onClick={() => handleFleetSelection(fleet)}
                                 />
                             ))}

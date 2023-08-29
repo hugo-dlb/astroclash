@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { MouseEventHandler, memo, useCallback } from "react";
 import { VStack, Tooltip, Text, Box, Fade } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { getFleetImage, getFleetExtendedLabel } from "../utils/fleet";
@@ -11,26 +11,35 @@ import {
 import { Actionable } from "./ActionMenu/Actionable";
 import { Button } from "./Button";
 import { FaIcon } from "./FaIcon";
-import { faCircleCheck } from "@fortawesome/pro-regular-svg-icons";
+import { IconDefinition } from "@fortawesome/pro-regular-svg-icons";
 
 type FleetButtonProps = {
     fleet: FleetType;
     size?: "xs" | "normal";
     isSelected?: boolean;
+    hasLowOpacity?: boolean;
+    lowOpacityIcon?: IconDefinition;
     isNonActionable?: boolean;
-    onClick?: (source: HTMLButtonElement) => void;
+    onClick?: (source: HTMLButtonElement, fleet: FleetType) => void;
 };
 
 export const Fleet = memo((props: FleetButtonProps) => {
     const {
         fleet,
         size = "normal",
-        isSelected = false,
+        hasLowOpacity,
+        lowOpacityIcon,
         isNonActionable = false,
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         onClick = () => {},
     } = props;
     const image = getFleetImage(fleet.type);
+
+    const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
+        if (!isNonActionable) {
+            onClick(event.target as HTMLButtonElement, fleet);
+        }
+    };
 
     return (
         <Actionable>
@@ -49,10 +58,8 @@ export const Fleet = memo((props: FleetButtonProps) => {
                                 fleet.rarity
                             ),
                         }}
-                        onClick={(event) =>
-                            onClick(event.target as HTMLButtonElement)
-                        }
-                        opacity={isSelected ? 0.5 : 1}
+                        onClick={handleClick}
+                        opacity={hasLowOpacity ? 0.5 : 1}
                         isNonActionable={isNonActionable}
                     >
                         <VStack>
@@ -74,17 +81,19 @@ export const Fleet = memo((props: FleetButtonProps) => {
                             </Text>
                         </VStack>
                     </Button>
-                    <Fade in={isSelected}>
-                        <FaIcon
-                            icon={faCircleCheck}
-                            size="2xl"
-                            color="blue.100"
-                            position="absolute"
-                            top="50%"
-                            left="50%"
-                            transform="translate(-50%, -50%)"
-                            pointerEvents="none"
-                        />
+                    <Fade in={hasLowOpacity}>
+                        {lowOpacityIcon && (
+                            <FaIcon
+                                icon={lowOpacityIcon}
+                                size="2xl"
+                                color="blue.100"
+                                position="absolute"
+                                top="50%"
+                                left="50%"
+                                transform="translate(-50%, -50%)"
+                                pointerEvents="none"
+                            />
+                        )}
                     </Fade>
                 </Box>
             </Tooltip>

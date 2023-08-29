@@ -18,6 +18,7 @@ import { upgradeFleet } from "../api/upgradeFleet";
 import { createMission } from "../api/createMission";
 import { cancelMission } from "../api/cancelMission";
 import { getMissions } from "../api/getMissions";
+import { getFleet } from "../api/getFleet";
 
 export enum ActionMenuAction {
     BUILDING_SELECTION = 'BUILDING_SELECTION',
@@ -58,6 +59,7 @@ export type Actions = {
     getRanks: () => Promise<void>;
     getGalaxy: (x: number, y: number, xOverscan?: number, yOverscan?: number) => Promise<void>;
     getMissions: () => Promise<void>;
+    getFleet: (planetUid: string) => Promise<void>;
     createMission: (label: string, fleetUids: string[], sourcePlanetUid: string, targetPlanetUid: string) => Promise<void>;
     cancelMission: (missionUid: string) => Promise<void>;
 }
@@ -255,6 +257,22 @@ export const useStore = create(
                     missions
                 });
             },
+            getFleet: async (planetUid) => {
+                const fleet = await getFleet({ planetUid });
+
+                const updatedPlanets = [...get().planets];
+                const planetIndex = updatedPlanets.findIndex(planet => planet.uid === planetUid);
+                const planet = updatedPlanets[planetIndex];
+                const updatedPlanet = {
+                    ...planet,
+                    fleet
+                };
+                updatedPlanets[planetIndex] = updatedPlanet;
+
+                set({
+                    planets: updatedPlanets
+                });
+            },
             createMission: async (label, fleetUids, sourcePlanetUid, targetPlanetUid) => {
                 const updatedMissions = await createMission({
                     label,
@@ -263,17 +281,7 @@ export const useStore = create(
                     targetPlanetUid
                 });
 
-                const updatedPlanets = [...get().planets];
-                const planetIndex = updatedPlanets.findIndex(planet => planet.uid === sourcePlanetUid);
-                const planet = updatedPlanets[planetIndex];
-                const updatedPlanet = {
-                    ...planet,
-                    fleet: [...planet.fleet.filter(fleet => !fleetUids.includes(fleet.uid))]
-                };
-                updatedPlanets[planetIndex] = updatedPlanet;
-
                 set({
-                    planets: updatedPlanets,
                     missions: updatedMissions,
                 });
             },

@@ -20,12 +20,15 @@ import { formatDuration } from "../../utils/date";
 import { getMissionTimeLeft } from "./getMissionFormattedDuration";
 import { differenceInSeconds, isAfter } from "date-fns";
 import { faRightLeft } from "@fortawesome/pro-duotone-svg-icons";
+import { useParams } from "react-router-dom";
 
 export const MissionsPopoverButton = () => {
     const openMenu = useStore((state) => state.openMenu);
     const getMissions = useStore((state) => state.getMissions);
+    const getFleet = useStore((state) => state.getFleet);
     const missions = useStore((state) => state.missions);
     const planets = useStore((state) => state.planets);
+    const { planetUid } = useParams();
     const userPlanetUids = planets.map((planet) => planet.uid);
     const [now, setNow] = useState(new Date());
     const lastMissionUpdateTimestamp = useRef<Date>();
@@ -56,7 +59,10 @@ export const MissionsPopoverButton = () => {
                 lastMissionUpdateTimestamp.current
             ) > 5
         ) {
-            setTimeout(getMissions, 1000);
+            setTimeout(() => {
+                getMissions();
+                getFleet(planetUid!);
+            }, 1000);
             lastMissionUpdateTimestamp.current = new Date();
         }
     }
