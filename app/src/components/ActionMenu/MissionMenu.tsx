@@ -7,7 +7,7 @@ import { faInfoCircle } from "@fortawesome/pro-regular-svg-icons";
 import { useState } from "react";
 import { Characteristic, CharacteristicsModal } from "../CharacteristicsModal";
 import { faBan } from "@fortawesome/pro-light-svg-icons";
-import { format } from "date-fns";
+import { format, isBefore } from "date-fns";
 
 type MissionMenuProps = {
     mission: Mission;
@@ -21,6 +21,10 @@ export const MissionMenu = (props: MissionMenuProps) => {
     const cancelMission = useStore((state) => state.cancelMission);
     const closeMenu = useStore((state) => state.closeMenu);
     const isUnderAttack = mission.target.userUid === user.uid;
+    const hasReachedDestination = isBefore(
+        new Date(mission.arrivalTime),
+        new Date()
+    );
     const characteristics = [
         isUnderAttack
             ? false
@@ -107,7 +111,7 @@ export const MissionMenu = (props: MissionMenuProps) => {
                     py={4}
                     px={6}
                     isLoading={isLoading}
-                    isDisabled={mission.cancelled}
+                    isDisabled={mission.cancelled || hasReachedDestination}
                 >
                     <VStack>
                         <FaIcon icon={faBan} size="lg" />

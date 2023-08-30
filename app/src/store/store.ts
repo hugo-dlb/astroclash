@@ -19,6 +19,8 @@ import { createMission } from "../api/createMission";
 import { cancelMission } from "../api/cancelMission";
 import { getMissions } from "../api/getMissions";
 import { getFleet } from "../api/getFleet";
+import { markMessageAsRead } from "../api/markMessageAsRead";
+import { markAllMessagesAsRead } from "../api/markAllMessagesAsRead";
 
 export enum ActionMenuAction {
     BUILDING_SELECTION = 'BUILDING_SELECTION',
@@ -62,6 +64,8 @@ export type Actions = {
     getFleet: (planetUid: string) => Promise<void>;
     createMission: (label: string, fleetUids: string[], sourcePlanetUid: string, targetPlanetUid: string) => Promise<void>;
     cancelMission: (missionUid: string) => Promise<void>;
+    markMessageAsRead: (messageUid: string) => void;
+    markAllMessagesAsRead: () => void;
 }
 
 export const defaultState: State = {
@@ -293,6 +297,42 @@ export const useStore = create(
 
                 set({
                     missions: updatedMissions,
+                });
+            },
+            markMessageAsRead: (messageUid) => {
+                markMessageAsRead({
+                    messageUid
+                });
+
+                const state = get();
+                const updatedMessages = JSON.parse(JSON.stringify(state.user.messages));
+                for (const message of updatedMessages) {
+                    if (message.uid === messageUid) {
+                        message.read = true;
+                    }
+                }
+
+                set({
+                    user: {
+                        ...state.user,
+                        messages: updatedMessages
+                    }
+                });
+            },
+            markAllMessagesAsRead: () => {
+                markAllMessagesAsRead();
+
+                const state = get();
+                const updatedMessages = JSON.parse(JSON.stringify(state.user.messages));
+                for (const message of updatedMessages) {
+                    message.read = true;
+                }
+
+                set({
+                    user: {
+                        ...state.user,
+                        messages: updatedMessages
+                    }
                 });
             }
         };

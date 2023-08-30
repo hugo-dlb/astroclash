@@ -6,8 +6,10 @@ import {
     AccordionIcon,
     AccordionItem,
     AccordionPanel,
+    Box,
     Center,
     Container,
+    Fade,
     HStack,
     Heading,
     Text,
@@ -16,8 +18,10 @@ import {
 import { MenuBar } from "../components/MenuBar/MenuBar";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Pagination } from "../components/Pagination/Pagination";
-import { MessageType } from "../types/types";
+import { Message, MessageType } from "../types/types";
 import { format } from "date-fns";
+import { FaIconButton } from "../components/FaIcon";
+import { faEnvelopeCircleCheck } from "@fortawesome/pro-duotone-svg-icons";
 
 const ENTRIES_PER_PAGE = 20;
 
@@ -25,11 +29,18 @@ export const Messages = () => {
     const [searchParams] = useSearchParams();
     const planetUid = searchParams.get("planetUid");
     const user = useStore((state) => state.user);
-    const [page, setPage] = useState(1);
     const { messages } = user;
+    const markMessageAsRead = useStore((state) => state.markMessageAsRead);
+    const markAllMessagesAsRead = useStore(
+        (state) => state.markAllMessagesAsRead
+    );
+    const [page, setPage] = useState(1);
     const sortedMessages = [...messages].sort((a, b) =>
         b.createdAt.localeCompare(a.createdAt)
     );
+    const unreadMessagesCount = messages.filter(
+        (message) => !message.read
+    ).length;
     const navigate = useNavigate();
 
     const handleBack = () => {
@@ -53,6 +64,16 @@ export const Messages = () => {
         return sortedMessages.slice(start, start + ENTRIES_PER_PAGE);
     };
 
+    const handleMessageRead = (message: Message) => {
+        if (!message.read) {
+            markMessageAsRead(message.uid);
+        }
+    };
+
+    const handleMarkAllAsReadClick = () => {
+        markAllMessagesAsRead();
+    };
+
     return (
         <VStack
             h="full"
@@ -70,21 +91,49 @@ export const Messages = () => {
                 <VStack spacing={4}>
                     <MenuBar showBackButton={true} handleBack={handleBack} />
                     <VStack alignItems="start" spacing={6} w="full">
-                        <Heading color="gray.100">Messages</Heading>
+                        <HStack justifyContent="space-between" w="full">
+                            <Heading color="gray.100">
+                                Messages{" "}
+                                {unreadMessagesCount > 0 &&
+                                    `(${unreadMessagesCount})`}
+                            </Heading>
+                            <FaIconButton
+                                icon={faEnvelopeCircleCheck}
+                                aria-label="Mark all as read"
+                                tooltip="Mark all as read"
+                                onClick={handleMarkAllAsReadClick}
+                                isDisabled={unreadMessagesCount === 0}
+                            />
+                        </HStack>
+
                         <Accordion allowMultiple w="full">
                             {getPaginatedEntries(page).map((message) => (
                                 <AccordionItem key={message.uid}>
-                                    <AccordionButton>
+                                    <AccordionButton
+                                        onClick={() =>
+                                            handleMessageRead(message)
+                                        }
+                                    >
                                         <HStack
                                             justifyContent="space-between"
                                             w="full"
                                         >
-                                            <Text>
-                                                {message.type ===
-                                                MessageType.MissionResult
-                                                    ? "Battle Report"
-                                                    : "Mission Return"}
-                                            </Text>
+                                            <HStack>
+                                                <Text>
+                                                    {message.type ===
+                                                    MessageType.MissionResult
+                                                        ? "Battle Report"
+                                                        : "Mission Return"}
+                                                </Text>
+                                                <Fade in={!message.read}>
+                                                    <Box
+                                                        borderRadius="50%"
+                                                        height="8px"
+                                                        width="8px"
+                                                        backgroundColor="blue.300"
+                                                    />
+                                                </Fade>
+                                            </HStack>
                                             <HStack>
                                                 <Text color="gray.300">
                                                     {format(

@@ -16,6 +16,7 @@ import { updateRanking } from "./utils/rank";
 import { galaxyRouter } from "./services/galaxy";
 import { missionRouter } from "./services/mission";
 import { healthRouter } from "./services/health";
+import { messageRouter } from "./services/message";
 
 checkEnvironmentVariables();
 
@@ -68,6 +69,7 @@ router.use(planetRouter);
 router.use(rankRouter);
 router.use(galaxyRouter);
 router.use(missionRouter);
+router.use(messageRouter);
 
 app.use("/api", router);
 

@@ -1,4 +1,4 @@
-import { Mission, Planet, ResourceType } from "../types/types";
+import { Fleet, Mission, Planet, ResourceType } from "../types/types";
 import { State } from "./store";
 
 export const makeSelectPlanet = (planetUid: string) => (state: State) => {
@@ -53,4 +53,11 @@ export const selectMission = (missions: Mission[], missionUid: string) => {
     }
 
     return mission;
+};
+
+export const selectFleetWithoutMissions = (fleet: Fleet[], missions: Mission[]) => {
+    return fleet
+        .filter((fleet) => missions.find((mission) =>
+            mission.fleet.find((spaceship) => spaceship.uid === fleet.uid) !== undefined) === undefined)
+        .sort((a, b) => b.level - a.level);
 };

@@ -8,7 +8,10 @@ import {
 import { ExtendedPlanet } from "../../api/getGalaxy";
 import { isAttackProps } from "./isAttackProps";
 import { useStore } from "../../store/store";
-import { makeSelectPlanet } from "../../store/selectors";
+import {
+    makeSelectPlanet,
+    selectFleetWithoutMissions,
+} from "../../store/selectors";
 import { getMissionDuration } from "../../utils/mission";
 import { useState } from "react";
 import { Fleet as FleetType } from "../../types/types";
@@ -41,6 +44,8 @@ export type AttackProps = {
 export const Attack = () => {
     const { state } = useLocation();
     const { planetUid } = useParams();
+    const sourcePlanet = useStore(makeSelectPlanet(planetUid!));
+    const missions = useStore((state) => state.missions);
     const [isLoading, setIsLoading] = useState(false);
     const [now, setNow] = useState(new Date());
     const [missionLabel, setMissionLabel] = useState(
@@ -48,8 +53,11 @@ export const Attack = () => {
     );
     const [selectedFleet, setSelectedFleet] = useState<FleetType[]>([]);
     const selectedFleetUids = selectedFleet.map((fleet) => fleet.uid);
-    const sourcePlanet = useStore(makeSelectPlanet(planetUid!));
     const createMission = useStore((state) => state.createMission);
+    const fleetWithoutMissions = selectFleetWithoutMissions(
+        sourcePlanet.fleet,
+        missions
+    );
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -151,7 +159,7 @@ export const Attack = () => {
                             </Checkbox>
                         </HStack>
                         <HStack spacing={4} wrap="wrap">
-                            {sourcePlanet.fleet.map((fleet) => (
+                            {fleetWithoutMissions.map((fleet) => (
                                 <Fleet
                                     key={fleet.uid}
                                     fleet={fleet}

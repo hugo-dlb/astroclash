@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { Text, HStack, Tooltip, Button } from "@chakra-ui/react";
-import {
-    faArrowLeft,
-    faEnvelope,
-    faPowerOff,
-} from "@fortawesome/pro-regular-svg-icons";
+import { faArrowLeft, faPowerOff } from "@fortawesome/pro-regular-svg-icons";
 import { FaIconButton } from "../FaIcon";
 import { useStore } from "../../store/store";
 import { useNavigate, useParams } from "react-router-dom";
 import { Counter } from "../Counter";
 import { MissionsPopoverButton } from "./MissionsPopoverButton";
+import { MessagesButton } from "./MessagesButton";
 
 type MenuBarProps = {
     showBackButton: boolean;
@@ -47,14 +44,6 @@ export const MenuBar = (props: MenuBarProps) => {
         }
     };
 
-    const handleMessagesClick = () => {
-        if (planetUid) {
-            navigate(`/messages?planetUid=${planetUid}`);
-        } else {
-            navigate("/messages");
-        }
-    };
-
     return (
         <HStack
             w="full"
@@ -87,12 +76,7 @@ export const MenuBar = (props: MenuBarProps) => {
             </HStack>
             <HStack minW="150px" justifyContent="end">
                 <MissionsPopoverButton />
-                <FaIconButton
-                    aria-label="Messages"
-                    tooltip="Messages"
-                    icon={faEnvelope}
-                    onClick={handleMessagesClick}
-                />
+                <MessagesButton />
                 <FaIconButton
                     aria-label="Logout"
                     tooltip="Logout"

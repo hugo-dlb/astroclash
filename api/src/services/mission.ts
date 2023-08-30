@@ -205,7 +205,8 @@ router.delete('/missions/:missionUid', authMiddleware, async (req: Request<{ mis
         return res.status(404).json({ error: "Mission not found" });
     }
 
-    if (mission.cancelled) {
+    const hasReachedDestination = isBefore(new Date(mission.arrivalTime), new Date());
+    if (mission.cancelled || hasReachedDestination) {
         return res.status(400).json({ error: "This mission is already on its way back" });
     }
 
