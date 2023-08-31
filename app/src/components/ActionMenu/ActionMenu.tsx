@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useRef } from "react";
 import { isWithinActionable } from "./isWithinActionable";
 import { BuildingMenu } from "./BuildingMenu";
-import { ActionMenuAction, useStore } from "../../store/store";
+import { useStore } from "../../store/store";
 import {
     selectBuilding,
     selectFleet,
@@ -16,6 +16,7 @@ import { GalaxyPlanetMenu } from "./GalaxyPlanetMenu";
 import { useParams } from "react-router-dom";
 import { EntityReference } from "../../types/types";
 import { MissionMenu } from "./MissionMenu";
+import { ActionMenuAction } from "../../store/types";
 
 const isEntityReference = (entity: any): entity is EntityReference => {
     return entity && entity.uid !== undefined && entity.type !== undefined;

@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { ActionMenuAction, useStore } from "../../store/store";
+import { useStore } from "../../store/store";
 import { Box, useBreakpointValue } from "@chakra-ui/react";
 import { ExtendedPlanet } from "../../api/getGalaxy";
 import { CellGrid } from "../../components/Galaxy/CellGrid";
@@ -8,6 +8,7 @@ import { ANIMATION_TIME, useGalaxy } from "./useGalaxy";
 import { GalaxyControls } from "./GalaxyControls";
 import { debounce } from "lodash";
 import { Coordinates } from "./Coordinates";
+import { ActionMenuAction } from "../../store/types";
 
 export const Galaxy = () => {
     const [containerWidth, setContainerWidth] = useState(0);

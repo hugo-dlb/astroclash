@@ -16,9 +16,10 @@ import { getSpaceDockSpace } from "../utils/building";
 import { BuildFleetButton } from "./BuildFleetButton";
 import { Fleet } from "./Fleet";
 import { CannotBuildFleetButton } from "./CannotBuildFleetButton";
-import { ActionMenuAction, useStore } from "../store/store";
+import { useStore } from "../store/store";
 import { useCallback } from "react";
 import { faSwords } from "@fortawesome/pro-solid-svg-icons";
+import { ActionMenuAction } from "../store/types";
 
 type PlanetFleetSectionProps = {
     planet: Planet;

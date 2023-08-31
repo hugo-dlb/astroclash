@@ -61,7 +61,7 @@ export const Ranking = () => {
         getRanks().finally(() => {
             setIsLoading(false);
         });
-    }, []);
+    }, [getRanks]);
 
     useEffect(() => {
         if (userRankRow.current) {

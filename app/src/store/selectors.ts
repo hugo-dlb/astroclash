@@ -1,5 +1,5 @@
 import { Fleet, Mission, Planet, ResourceType } from "../types/types";
-import { State } from "./store";
+import { State } from "./types";
 
 export const makeSelectPlanet = (planetUid: string) => (state: State) => {
     const planet = state.planets.find(planet => planet.uid === planetUid);

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ActionMenuAction, useStore } from "../../store/store";
+import { useStore } from "../../store/store";
 import { FaIcon, FaIconButton } from "../FaIcon";
 import {
     Badge,
@@ -21,6 +21,7 @@ import { getMissionTimeLeft } from "./getMissionFormattedDuration";
 import { differenceInSeconds, isAfter } from "date-fns";
 import { faRightLeft } from "@fortawesome/pro-duotone-svg-icons";
 import { useParams } from "react-router-dom";
+import { ActionMenuAction } from "../../store/types";
 
 export const MissionsPopoverButton = () => {
     const openMenu = useStore((state) => state.openMenu);

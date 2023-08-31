@@ -1,12 +1,13 @@
 import { Box, Image, HStack, Text, VStack } from "@chakra-ui/react";
 import { useState } from "react";
-import { ActionMenuAction, useStore } from "../../store/store";
+import { useStore } from "../../store/store";
 import { BuildingType, FleetType, Planet } from "../../types/types";
 import { getSpaceDockSpace } from "../../utils/building";
 import { selectPlanetResource } from "../../store/selectors";
 import { getFleetTypeCost } from "../../utils/fleet";
 import { Button } from "../Button";
 import { getActionMenuActionLabel } from "./getActionMenuActionLabel";
+import { ActionMenuAction } from "../../store/types";
 
 type BuildFleetMenuProps = {
     planet: Planet;
@@ -61,7 +62,9 @@ export const BuildFleetMenu = (props: BuildFleetMenuProps) => {
                         <VStack>
                             <HStack>
                                 <Image src={`/assets/crystal.png`} h="32px" />
-                                <Text fontSize="3xl">{getFleetTypeCost(FleetType.LIGHT_FIGHTER)}</Text>
+                                <Text fontSize="3xl">
+                                    {getFleetTypeCost(FleetType.LIGHT_FIGHTER)}
+                                </Text>
                             </HStack>
                             <Text>Build 1 unit</Text>
                         </VStack>

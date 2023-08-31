@@ -2,9 +2,10 @@ import { MouseEventHandler } from "react";
 import { Center } from "@chakra-ui/react";
 import { faAdd } from "@fortawesome/pro-light-svg-icons";
 import { FaIcon } from "./FaIcon";
-import { ActionMenuAction, useStore } from "../store/store";
+import { useStore } from "../store/store";
 import { Actionable } from "./ActionMenu/Actionable";
 import { Button } from "./Button";
+import { ActionMenuAction } from "../store/types";
 
 export const BuildFleetButton = () => {
     const openMenu = useStore((store) => store.openMenu);

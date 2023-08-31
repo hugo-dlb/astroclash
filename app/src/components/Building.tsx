@@ -4,8 +4,9 @@ import { Image } from "@chakra-ui/react";
 import { Building as BuildingType, EntityType } from "../types/types";
 import { getBuildingImage, getBuildingLabel } from "../utils/building";
 import { Actionable } from "./ActionMenu/Actionable";
-import { ActionMenuAction, useStore } from "../store/store";
+import { useStore } from "../store/store";
 import { Button } from "./Button";
+import { ActionMenuAction } from "../store/types";
 
 type BuildingProps = {
     building: BuildingType;

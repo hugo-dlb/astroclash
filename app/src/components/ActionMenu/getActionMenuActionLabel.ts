@@ -1,4 +1,4 @@
-import { ActionMenuAction } from "../../store/store";
+import { ActionMenuAction } from "../../store/types";
 
 export const getActionMenuActionLabel = (action: ActionMenuAction) => {
     switch (action) {
