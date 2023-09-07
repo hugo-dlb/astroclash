@@ -4,8 +4,6 @@ import bodyParser from "body-parser";
 import { checkEnvironmentVariables } from "./utils/checkEnvironmentVariables";
 import { authRouter } from "./services/auth";
 import { prismaMiddleware } from "./middlewares/prismaMiddleware";
-import session from "express-session";
-import connectPg from "connect-pg-simple";
 import { buildingRouter } from "./services/building";
 import { fleetRouter } from "./services/fleet";
 import { planetRouter } from "./services/planet";
@@ -17,13 +15,25 @@ import { galaxyRouter } from "./services/galaxy";
 import { missionRouter } from "./services/mission";
 import { healthRouter } from "./services/health";
 import { messageRouter } from "./services/message";
+import { Server } from 'socket.io';
+import { createServer } from "http";
+import { initializeSocket } from "./socket/initializeSocket";
+import { getPgMiddleware } from "./middlewares/getPgMiddleware";
 
 checkEnvironmentVariables();
 
 const router = Router();
 const app = express();
+const httpServer = createServer(app);
 const port = process.env.PORT!;
-const PgSession = connectPg(session);
+const io = new Server(httpServer, {
+    cors: {
+        origin: process.env.CORS_ALLOWED_ORIGINS!.split(","),
+        credentials: true
+    }
+});
+
+initializeSocket(io);
 
 // TODO: double check timezones
 new CronJob(
@@ -40,26 +50,7 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 app.use(prismaMiddleware);
-app.use(session({
-    store: new PgSession({
-        conObject: {
-            connectionString: process.env.DATABASE_URL!,
-            ssl: false
-        },
-        tableName: "UserSession",
-        createTableIfMissing: true,
-    }),
-    secret: process.env.SESSION_SECRET!,
-    resave: false,
-    cookie: {
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === "production" ? "astroclash.io" : "localhost",
-        httpOnly: true,
-        sameSite: true
-    },
-    saveUninitialized: false,
-}));
+app.use(getPgMiddleware());
 
 router.use(healthRouter);
 router.use(authRouter);
@@ -76,6 +67,6 @@ app.use("/api", router);
 app.use(errorMiddleware);
 app.use(globalErrorHandler);
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
     console.log(`Astroclash api listening on port ${port} (Environment: ${process.env.NODE_ENV}).`);
 });

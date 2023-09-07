@@ -33,6 +33,8 @@ export type Actions = {
     logout: typeof logout;
     register: typeof register;
     getProfile: typeof getProfile;
+    initializeSocket: () => void;
+    disconnectSocket: () => void;
     updatePlanetName: (planetUid: string, name: string) => void;
     updatePlanetResources: (planetUid: string, secondsElapsed?: number) => void;
     upgradeBuilding: (buildingParam: Building) => void;

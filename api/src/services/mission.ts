@@ -44,7 +44,7 @@ router.get('/missions', authMiddleware, async (req: Request, res: Response) => {
             missionsToBeDeleted.push(mission);
 
             const messageContent = `${mission.fleet.length} spaceship${mission.fleet.length === 1 ? '' : 's'} returned from planet ${mission.target.name}${mission.resources.length > 0 ? ` with ${mission.resources[0].value} crystal` : ''}.`;
-            await sendMessage(user.userUid, MessageType.MissionReturn, messageContent, mission.returnTime!);
+            await sendMessage(user.userUid, MessageType.MissionReturn, mission, messageContent, mission.returnTime!);
             continue;
         }
 

@@ -16,6 +16,7 @@ type MenuBarProps = {
 export const MenuBar = (props: MenuBarProps) => {
     const { showBackButton, handleBack } = props;
     const [isLogoutLoading, setIsLogoutLoading] = useState(false);
+    const disconnectSocket = useStore((state) => state.disconnectSocket);
     const { planetUid } = useParams();
     const navigate = useNavigate();
     const logout = useStore((state) => state.logout);
@@ -28,6 +29,7 @@ export const MenuBar = (props: MenuBarProps) => {
         setIsLogoutLoading(true);
 
         try {
+            disconnectSocket();
             await logout();
         } finally {
             navigate("/login");

@@ -29,7 +29,6 @@ type MissionWithOptionalReturnTime = Mission & {
     fleet: Fleet[];
     source: Planet;
     target: Planet;
-    returnTime?: Date;
 }
 
 export const getUserMissions = async (userUid: string, isInternal = false) => {
@@ -202,7 +201,7 @@ export const executeMission = async (missionUid: string, attackerUserUid: string
         if (attackerLostFleet.length > 0) {
             messageContent += ` The attacker lost ${defenderLostFleet.length} spaceships.`;
         }
-        await sendMessage(attackerUserUid, MessageType.MissionResult, messageContent);
+        await sendMessage(attackerUserUid, MessageType.MissionResult, mission, messageContent);
     } else if (defenderWon) {
         await addResourcesToPlanet(mission.targetUid, resourcesLoot);
         await deleteMission(mission);
@@ -215,7 +214,7 @@ export const executeMission = async (missionUid: string, attackerUserUid: string
         if (attackerLostFleet.length > 0) {
             messageContent += ` The attacker lost ${defenderLostFleet.length} spaceships.`;
         }
-        await sendMessage(attackerUserUid, MessageType.MissionResult, messageContent);
+        await sendMessage(attackerUserUid, MessageType.MissionResult, mission, messageContent);
     } else {
         await updateMissionResources(mission.uid, Math.round(resourcesLoot / 2));
         await addResourcesToPlanet(mission.targetUid, Math.round(resourcesLoot / 2));
@@ -227,7 +226,7 @@ export const executeMission = async (missionUid: string, attackerUserUid: string
         if (attackerLostFleet.length > 0) {
             messageContent += ` The attacker lost ${defenderLostFleet.length} spaceships.`;
         }
-        await sendMessage(attackerUserUid, MessageType.MissionResult, messageContent);
+        await sendMessage(attackerUserUid, MessageType.MissionResult, mission, messageContent);
     }
 
     await updateRankingAfterBattle(attackerUserUid, attackerLostFleet, defenderUserUid, defenderLostFleet);

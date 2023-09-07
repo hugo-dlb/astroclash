@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { Server } from 'socket.io';
 
 export type RequestUser = {
     userUid: string;
@@ -14,6 +15,7 @@ declare global {
     namespace Express {
         export interface Request {
             prisma: PrismaClient;
+            socket: Server;
             user: RequestUser;
         }
     }

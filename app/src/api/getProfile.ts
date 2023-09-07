@@ -1,4 +1,5 @@
-import { State, useStore } from "../store/store";
+import { useStore } from "../store/store";
+import { State } from "../store/types";
 import { Ranking } from "../types/types";
 import { axios } from "../utils/axios";
 import { getComputedRanking } from "../utils/ranking";

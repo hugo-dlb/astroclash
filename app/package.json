@@ -32,6 +32,7 @@
         "react-dom": "^18.2.0",
         "react-hotkeys-hook": "^4.4.0",
         "react-router-dom": "^6.12.1",
+        "socket.io-client": "^4.7.2",
         "ts-pattern": "^5.0.5",
         "zustand": "^4.3.8"
     },

@@ -21,6 +21,8 @@ import { Building, BuildingType, EntityReference, FleetType, Planet } from "../t
 import { getGalaxy } from "../api/getGalaxy";
 import { ActionMenuAction, Actions, State } from "./types";
 import { StateCreator } from "zustand";
+import { cloneDeep } from "lodash";
+import { initializeSocket, disconnectSocket } from "../socket/socket";
 
 type test = StateCreator<State & Actions>;
 
@@ -29,6 +31,8 @@ export const getActions = (set: Parameters<test>[0], get: Parameters<test>[1]) =
     logout,
     register,
     getProfile,
+    initializeSocket,
+    disconnectSocket,
     updatePlanetName: async (planetUid: string, name: string) => {
         const planet = await updatePlanetName({
             planetUid,
@@ -48,13 +52,14 @@ export const getActions = (set: Parameters<test>[0], get: Parameters<test>[1]) =
         const planet = makeSelectPlanet(planetUid)(state);
         const planetIndex = state.planets.indexOf(planet);
 
-        const updatedPlanet = JSON.parse(JSON.stringify(planet));
+        const updatedPlanet = cloneDeep(planet);
         const resource = selectPlanetResource(updatedPlanet);
         const hourlyProduction = selectResourceBuilding(planet, resource.type).production;
         const productionPerSecond = hourlyProduction / 3600;
+        // 1001 instead of 1000 for safety measures so that the backend is always ahead of the client
         const secondsElapsed = (Date.now() - new Date(planet.lastResourceUpdate).getTime()) / 1001;
         resource.value = resource.value + productionPerSecond * secondsElapsed;
-        planet.lastResourceUpdate = Date.now();
+        updatedPlanet.lastResourceUpdate = Date.now();
         const updatedPlanets = [...state.planets];
         updatedPlanets[planetIndex] = updatedPlanet;
 

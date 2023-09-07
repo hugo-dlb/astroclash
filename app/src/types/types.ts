@@ -153,3 +153,11 @@ export enum MessageType {
     MissionResult = "MissionResult",
     MissionReturn = "MissionReturn"
 }
+
+export type Event = {
+    type: MessageType,
+    data: {
+        mission: Mission,
+        message: Message,
+    }
+}
