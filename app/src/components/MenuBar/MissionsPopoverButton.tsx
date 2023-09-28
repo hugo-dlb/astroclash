@@ -62,7 +62,10 @@ export const MissionsPopoverButton = () => {
         ) {
             setTimeout(() => {
                 getMissions();
-                getFleet(planetUid!);
+
+                if (planetUid) {
+                    getFleet(planetUid);
+                }
             }, 1000);
             lastMissionUpdateTimestamp.current = new Date();
         }
