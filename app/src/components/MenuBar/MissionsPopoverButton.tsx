@@ -79,10 +79,6 @@ export const MissionsPopoverButton = () => {
         return () => clearInterval(id);
     }, []);
 
-    if (missions.length === 0) {
-        return null;
-    }
-
     const sortedMissions = missionsWithTimeLeft.sort(
         (a, b) => a.timeLeft - b.timeLeft
     );
@@ -110,6 +106,7 @@ export const MissionsPopoverButton = () => {
                     icon={faStarfighter}
                     iconColor={isUnderAttack ? "red.900" : undefined}
                     colorScheme={isUnderAttack ? "red" : undefined}
+                    isDisabled={missions.length === 0}
                 />
             </PopoverTrigger>
             <PopoverContent w="360px" overflow="hidden">

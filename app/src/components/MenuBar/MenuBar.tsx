@@ -58,7 +58,7 @@ export const MenuBar = (props: MenuBarProps) => {
             position="relative"
             zIndex={10}
         >
-            <HStack minW="150px" justifyContent="start">
+            <HStack minW={[0, "136px"]} justifyContent="start">
                 {showBackButton && (
                     <FaIconButton
                         aria-label="Back"
@@ -76,7 +76,7 @@ export const MenuBar = (props: MenuBarProps) => {
                     </Button>
                 </Tooltip>
             </HStack>
-            <HStack minW="150px" justifyContent="end">
+            <HStack justifyContent="end">
                 <MissionsPopoverButton />
                 <MessagesButton />
                 <FaIconButton
