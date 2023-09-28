@@ -61,13 +61,28 @@ export const Planet = () => {
                             leftIcon={
                                 <FaIcon fontSize="2xl" icon={faSolarSystem} />
                             }
+                            display={["none", "flex"]}
                         >
                             Galaxy
                         </Button>
                     </HStack>
                     <VStack alignItems="start" spacing={8}>
-                        <VStack alignItems="start" spacing={4}>
-                            <Heading size="md">Resources</Heading>
+                        <VStack alignItems="start" spacing={4} w="full">
+                            <HStack justifyContent="space-between" w="full">
+                                <Heading size="md">Resources</Heading>
+                                <Button
+                                    onClick={handleGalaxyClick}
+                                    leftIcon={
+                                        <FaIcon
+                                            fontSize="2xl"
+                                            icon={faSolarSystem}
+                                        />
+                                    }
+                                    display={["flex", "none"]}
+                                >
+                                    Galaxy
+                                </Button>
+                            </HStack>
                             <HStack>
                                 {planet.resources.map((resource) => (
                                     <Resource
