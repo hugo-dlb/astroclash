@@ -12,6 +12,7 @@ export const initializeSocket = () => {
     }
 
     socket.on("event", (event: Event) => {
+        // TODO: socket is unused for now
         console.log(event);
     });
 };

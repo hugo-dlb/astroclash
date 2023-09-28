@@ -1,10 +1,9 @@
 import { MessageType } from "@prisma/client";
 import { prisma } from "../middlewares/prismaMiddleware";
-import { sendSocketEvent } from "../socket/initializeSocket";
 import { Mission } from "../types/Mission";
 
 export const sendMessage = async (userUid: string, type: MessageType, mission: Mission, content: string, createdAt?: Date) => {
-    const message = await prisma.message.create({
+    await prisma.message.create({
         data: {
             userUid,
             type,
@@ -14,11 +13,11 @@ export const sendMessage = async (userUid: string, type: MessageType, mission: M
         }
     });
 
-    sendSocketEvent({
-        type,
-        data: {
-            mission,
-            message,
-        }
-    }, userUid);
+    // sendSocketEvent({
+    //     type,
+    //     data: {
+    //         mission,
+    //         message,
+    //     }
+    // }, userUid);
 };

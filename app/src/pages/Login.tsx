@@ -21,7 +21,7 @@ export const Login = () => {
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const login = useStore((state) => state.login);
-    const initializeSocket = useStore((state) => state.initializeSocket);
+    // const initializeSocket = useStore((state) => state.initializeSocket);
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
@@ -30,7 +30,7 @@ export const Login = () => {
 
         try {
             await login({ email, password });
-            initializeSocket();
+            // initializeSocket();
             navigate("/planets");
         } finally {
             setIsLoading(false);

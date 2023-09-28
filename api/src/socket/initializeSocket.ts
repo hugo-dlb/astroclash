@@ -29,8 +29,6 @@ export const initializeSocket = (socket: Server) => {
         client.data.userUid = (userSession.sess as { user: { userUid: string } }).user.userUid as string;
         sockets[client.data.userUid] = client;
 
-        console.log('socket connection from user', client.data.userUid);
-
         client.on('disconnect', () => {
             delete sockets[client.data.userUid];
         });

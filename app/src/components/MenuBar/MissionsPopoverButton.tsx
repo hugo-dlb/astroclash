@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useStore } from "../../store/store";
 import { FaIcon, FaIconButton } from "../FaIcon";
 import {
@@ -18,16 +18,21 @@ import { faWarning } from "@fortawesome/pro-solid-svg-icons";
 import { Actionable } from "../ActionMenu/Actionable";
 import { formatDuration } from "../../utils/date";
 import { getMissionTimeLeft } from "./getMissionFormattedDuration";
-import { isAfter } from "date-fns";
+import { differenceInSeconds, isAfter } from "date-fns";
 import { faRightLeft } from "@fortawesome/pro-duotone-svg-icons";
+import { useParams } from "react-router-dom";
 import { ActionMenuAction } from "../../store/types";
 
 export const MissionsPopoverButton = () => {
     const openMenu = useStore((state) => state.openMenu);
+    const getMissions = useStore((state) => state.getMissions);
+    const getFleet = useStore((state) => state.getFleet);
     const missions = useStore((state) => state.missions);
     const planets = useStore((state) => state.planets);
+    const { planetUid } = useParams();
     const userPlanetUids = planets.map((planet) => planet.uid);
     const [now, setNow] = useState(new Date());
+    const lastMissionUpdateTimestamp = useRef<Date>();
     const missionsWithTimeLeft = missions.map((mission) => {
         const timeLeft = getMissionTimeLeft(
             mission,
@@ -42,6 +47,26 @@ export const MissionsPopoverButton = () => {
                 timeLeft <= 0 ? "Done" : formatDuration(timeLeft),
         };
     });
+
+    const shouldUpdateMissions = missionsWithTimeLeft.some(
+        (mission) => mission.timeLeft === 0
+    );
+
+    if (shouldUpdateMissions) {
+        if (
+            !lastMissionUpdateTimestamp.current ||
+            differenceInSeconds(
+                new Date(),
+                lastMissionUpdateTimestamp.current
+            ) > 5
+        ) {
+            setTimeout(() => {
+                getMissions();
+                getFleet(planetUid!);
+            }, 1000);
+            lastMissionUpdateTimestamp.current = new Date();
+        }
+    }
 
     useEffect(() => {
         const updateNow = () => setNow(new Date());
