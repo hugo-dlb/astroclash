@@ -129,7 +129,7 @@ export const Attack = () => {
     );
 
     return (
-        <Container maxWidth={{ base: "full", lg: "container.lg" }}>
+        <Container maxWidth={{ base: "full", lg: "container.lg" }} mb={4}>
             <VStack alignItems="start" spacing={4}>
                 <Heading color="gray.100">Attack · {targetPlanet.name}</Heading>
                 <Card>
