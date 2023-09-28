@@ -39,8 +39,8 @@ export const Building = memo((props: BuildingProps) => {
                 py={[2, 4]}
                 position="relative"
             >
-                <VStack spacing={[2, 4]} h="full">
-                    <Box flex="1">
+                <VStack spacing={[1, 2]} h="full">
+                    <Box flex="1" overflow="hidden">
                         <Image src={`/assets/${image}`} h="100%" w="100%" />
                     </Box>
                     <Text fontSize="lg">{label}</Text>

@@ -19,7 +19,11 @@ export const BuildFleetButton = () => {
 
     return (
         <Actionable>
-            <Button onClick={handleClick} w="128px" h="128px">
+            <Button
+                onClick={handleClick}
+                w={["108px", "128px"]}
+                h={["108px", "128px"]}
+            >
                 <Center h="100%">
                     <FaIcon icon={faAdd} size="2xl" />
                 </Center>

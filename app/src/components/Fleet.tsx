@@ -44,11 +44,17 @@ export const Fleet = memo((props: FleetButtonProps) => {
     return (
         <Actionable>
             <Tooltip label={getFleetExtendedLabel(fleet)}>
-                <Box position="relative">
+                <Box
+                    position="relative"
+                    h={size === "xs" ? "40px" : ["108px", "128px"]}
+                    w={size === "xs" ? "40px" : ["108px", "128px"]}
+                >
                     <Button
                         position="relative"
-                        w={size === "xs" ? "40px" : "128px"}
-                        h={size === "xs" ? "40px" : "128px"}
+                        buttonHeight="100%"
+                        buttonWidth="100%"
+                        h="100%"
+                        w="100%"
                         p={0}
                         borderWidth="2px"
                         borderColor={getRarityColor(fleet.rarity)}
@@ -62,12 +68,17 @@ export const Fleet = memo((props: FleetButtonProps) => {
                         opacity={hasLowOpacity ? 0.5 : 1}
                         isNonActionable={isNonActionable}
                     >
-                        <VStack>
+                        <VStack h="full" justifyContent="center">
                             {size === "normal" && (
-                                <Image
-                                    transform="translateZ(0)"
-                                    src={`/assets/${image}`}
-                                />
+                                <Box flex="1">
+                                    <Image
+                                        transform="translateZ(0)"
+                                        src={`/assets/${image}`}
+                                        h="100%"
+                                        w="100%"
+                                        objectFit="scale-down"
+                                    />
+                                </Box>
                             )}
                             <Text
                                 position={

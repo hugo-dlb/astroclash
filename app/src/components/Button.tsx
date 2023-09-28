@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 
 type ButtonProps = ChakraButtonProps & {
     buttonWidth?: string;
+    buttonHeight?: string;
     isNonActionable?: boolean;
 };
 
@@ -16,6 +17,7 @@ export const Button = forwardRef<ButtonProps, "button">((props, ref) => {
         onClick,
         isDisabled,
         buttonWidth,
+        buttonHeight,
         isNonActionable = false,
         ...rest
     } = props;
@@ -28,6 +30,7 @@ export const Button = forwardRef<ButtonProps, "button">((props, ref) => {
             disabled={isDisabled}
             style={{
                 width: buttonWidth,
+                height: buttonHeight,
             }}
         >
             <ChakraButton ref={ref} as="div" isDisabled={isDisabled} {...rest}>
