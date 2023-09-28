@@ -56,7 +56,7 @@ export const getFleetExtendedLabel = (fleet: Fleet) => {
 export const getFleetHealthPoints = (type: FleetType, level: number, rarity: Rarity) => {
     switch (type) {
         case FleetType.LIGHT_FIGHTER:
-            return Math.floor(10 * Math.pow(1.3, level - 1)) * getRarityMultiplier(rarity);
+            return Math.floor(20 * Math.pow(1.3, level - 1)) * getRarityMultiplier(rarity);
         default:
             return 0;
     }
@@ -65,7 +65,7 @@ export const getFleetHealthPoints = (type: FleetType, level: number, rarity: Rar
 export const getFleetAttackPoints = (type: FleetType, level: number, rarity: Rarity) => {
     switch (type) {
         case FleetType.LIGHT_FIGHTER:
-            return Math.floor(7 * Math.pow(1.2, level - 1)) * getRarityMultiplier(rarity);
+            return Math.floor(15 * Math.pow(1.3, level - 1)) * getRarityMultiplier(rarity);
         default:
             return 0;
     }
