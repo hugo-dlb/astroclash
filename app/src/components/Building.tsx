@@ -1,5 +1,5 @@
 import { MouseEventHandler, memo } from "react";
-import { VStack, Text } from "@chakra-ui/react";
+import { VStack, Text, Box, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { Building as BuildingType, EntityType } from "../types/types";
 import { getBuildingImage, getBuildingLabel } from "../utils/building";
@@ -31,19 +31,28 @@ export const Building = memo((props: BuildingProps) => {
 
     return (
         <Actionable>
-            <Button onClick={handleClick} h="auto" px={6} py={4}>
-                <VStack spacing={4} position="relative">
-                    <Image src={`/assets/${image}`} h="128px" />
+            <Button
+                onClick={handleClick}
+                h={["160px", "200px"]}
+                w={["160px", "200px"]}
+                px={[4, 6]}
+                py={[2, 4]}
+                position="relative"
+            >
+                <VStack spacing={[2, 4]} h="full">
+                    <Box flex="1">
+                        <Image src={`/assets/${image}`} h="100%" w="100%" />
+                    </Box>
                     <Text fontSize="lg">{label}</Text>
-                    <Text
-                        position="absolute"
-                        top="-8px"
-                        right="-8px"
-                        fontSize="3xl"
-                    >
-                        {building.level}
-                    </Text>
                 </VStack>
+                <Text
+                    position="absolute"
+                    top={["8px", "16px"]}
+                    right={["8px", "16px"]}
+                    fontSize={["2xl", "3xl"]}
+                >
+                    {building.level}
+                </Text>
             </Button>
         </Actionable>
     );
