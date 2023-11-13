@@ -1,5 +1,5 @@
 import { MouseEventHandler, memo } from "react";
-import { VStack, Text, Box, useBreakpointValue } from "@chakra-ui/react";
+import { VStack, Text, Box } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { Building as BuildingType, EntityType } from "../types/types";
 import { getBuildingImage, getBuildingLabel } from "../utils/building";
